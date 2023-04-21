@@ -4,7 +4,7 @@ import os
 #VARIAVEIS GLOBAIS
 WIDTH, HEIGHT = 1000,600
 WIN = pygame.display.set_mode((WIDTH,HEIGHT))
-COLOR_BG = (212, 201, 133)
+COLOR_BG = (243, 243, 251)
 COLOR_BOARD = (235, 216, 103)
 FPS = 60
 BORDAX = 100
@@ -54,10 +54,10 @@ def main():
                 run = False
         #main loop  
        
-        
+        posicao_peca(10,Peca[1])
         draw_window(Board,Peca)
         
-
+        
     pygame.quit()
 
 
