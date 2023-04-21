@@ -4,12 +4,15 @@ import os
 #VARIAVEIS GLOBAIS
 WIDTH, HEIGHT = 1000,600
 WIN = pygame.display.set_mode((WIDTH,HEIGHT))
-COLOR_BG = (243, 243, 251)
-COLOR_BOARD = (235, 216, 103)
+COLOR_BG = (209,197,171)
 FPS = 60
 BORDAX = 100
 BORDAY = 100
 
+#IMAGENS 
+Board_img = pygame.image.load(os.path.join('Assets','Board Senet.png'))
+Peca_Preta_img = pygame.image.load(os.path.join('Assets','Triangulo_Preto.png'))
+Peca_Branca_img = pygame.image.load(os.path.join('Assets','Circulo_Branco.png'))
 #DEFINICAO DE FUNCOES
 
 
@@ -24,12 +27,13 @@ def posicao_peca(posicao,peca):
 #draw window
 def draw_window(Board,Peca):
     WIN.fill(COLOR_BG)
-    pygame.draw.rect(WIN,COLOR_BOARD,Board) #substituir por Win.blit com imagem no fim
+    WIN.blit(Board_img,Board)
+
     for i in range(10):
         if i %2 == 0: #se peça for par é branca
-            pygame.draw.rect(WIN,(255,255,255),Peca[i])
-        else:
-            pygame.draw.rect(WIN,(0,0,0),Peca[i])
+            WIN.blit(Peca_Branca_img,Peca[i])
+        else: #se peça for preta
+            WIN.blit(Peca_Preta_img,Peca[i])
 
 
 
@@ -54,7 +58,6 @@ def main():
                 run = False
         #main loop  
        
-        posicao_peca(10,Peca[1])
         draw_window(Board,Peca)
         
         
