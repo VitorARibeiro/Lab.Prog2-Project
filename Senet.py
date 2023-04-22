@@ -18,6 +18,12 @@ Peca_Preta_img = pygame.image.load(os.path.join('Assets','Triangulo_Preto.png'))
 Peca_Branca_img = pygame.image.load(os.path.join('Assets','Circulo_Branco.png'))
 Homem_Passaro_img = pygame.image.load(os.path.join('Assets','Homem_Passaro.png'))
 Mulher_Egito_img = pygame.image.load(os.path.join('Assets','Mulher_Egito.png'))
+Senet_Logo_img = pygame.image.load(os.path.join('Assets','Senet_Logo.png'))
+NJogo_img = pygame.image.load(os.path.join('Assets','NJogo_img.png'))
+CJogo_img = pygame.image.load(os.path.join('Assets','CJogo_img.png'))
+Ajuda_img = pygame.image.load(os.path.join('Assets','Ajuda_img.png'))
+Definicoes_img = pygame.image.load(os.path.join('Assets','Definicoes_img.png'))
+Sair_img = pygame.image.load(os.path.join('Assets','Sair.png'))
 
 #DEFINICAO DE FUNCOES
 
@@ -47,8 +53,13 @@ def draw_Menu(Botoes):
     WIN.fill(MENU_BG)
     WIN.blit(Mulher_Egito_img,(0,100))
     WIN.blit(Homem_Passaro_img,(700,150))
-    for i in range(5):
-        pygame.draw.rect(WIN,(0,0,0),Botoes[i])
+    WIN.blit(Senet_Logo_img,(300,30))
+    #botoes---
+    WIN.blit(NJogo_img,Botoes[0])
+    WIN.blit(CJogo_img,Botoes[1])
+    WIN.blit(Ajuda_img,Botoes[2])
+    WIN.blit(Definicoes_img,Botoes[3])
+    WIN.blit(Sair_img,Botoes[4])
     
     pygame.display.update()
 
@@ -57,11 +68,11 @@ def draw_Menu(Botoes):
 def Main_Menu():
     #geracao de retangulos para 
     Posicao_rato = pygame.mouse.get_pos() #posicao do rato
-    Botao_NJogo = pygame.Rect(300,155,400,90)
-    Botao_carregar = pygame.Rect(300,250,400,90)
-    Botao_descricao =  pygame.Rect(300,345,400,90)
-    Botao_definicoes =  pygame.Rect(300,440,400,90)
-    Botao_sair = pygame.Rect(300,535,400,90)
+    Botao_NJogo = pygame.Rect(375,155,250,90)
+    Botao_carregar = pygame.Rect(375,250,250,90)
+    Botao_descricao =  pygame.Rect(375,345,250,90)
+    Botao_definicoes =  pygame.Rect(375,440,250,90)
+    Botao_sair = pygame.Rect(375,535,250,90)
     Botoes = [Botao_NJogo,Botao_carregar,Botao_descricao,Botao_definicoes,Botao_sair]
     run = True
     while run:
@@ -99,6 +110,6 @@ def Game():
 
 #RUN MAIN LOOP
 
-Game()
+Main_Menu()
 
 pygame.quit()
