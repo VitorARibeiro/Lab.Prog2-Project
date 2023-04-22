@@ -98,16 +98,30 @@ def posicao_peca(posicao,peca,Vetor_Pos,index): #digo em que posicao quero a pe�
     peca[index].y = (SEQUENCIA[posicao] // 10 ) * 80 + 20  
     Vetor_Pos[index] = posicao
 
+def foi_comida(posicao):
+    if posicao <=9:
+        return True
+    else:
+        return False
+    
 def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #digo quanto quero que a peca avance
     posicao = Vetor_Pos[index] + incremento
-    if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca
-        print("E possivel mover")
-        if comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
-            comer_peca(posicao,peca,Vetor_Pos,index)
-        else:
-            posicao_peca(posicao,peca,Vetor_Pos,index)
+    posicao_comida = 9 + incremento #pois 9 + 1 volta ao inicio da board
+    if foi_comida(posicao):
+        if move_check(posicao_comida,Vetor_Pos,index): #se for possivel mover a peca
+            print("E possivel mover")
+            if comer_check(posicao_comida,Vetor_Pos,index): #se for preciso comer uma peça
+                comer_peca(posicao_comida,peca,Vetor_Pos,index)
+            else:
+                posicao_peca(posicao_comida,peca,Vetor_Pos,index)
     else:
-        print("Nao e possivel mover a peca")
+        if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca
+            print("E possivel mover")
+            if comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
+                comer_peca(posicao,peca,Vetor_Pos,index)
+            else:
+                posicao_peca(posicao,peca,Vetor_Pos,index)
+
 
 
 
