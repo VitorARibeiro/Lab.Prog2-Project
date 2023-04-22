@@ -24,6 +24,7 @@ CJogo_img = pygame.image.load(os.path.join('Assets','CJogo_img.png'))
 Ajuda_img = pygame.image.load(os.path.join('Assets','Ajuda_img.png'))
 Definicoes_img = pygame.image.load(os.path.join('Assets','Definicoes_img.png'))
 Sair_img = pygame.image.load(os.path.join('Assets','Sair.png'))
+BackGound_img = pygame.image.load(os.path.join('Assets','BG.png'))
 
 #DEFINICAO DE FUNCOES
 
@@ -38,7 +39,7 @@ def posicao_peca(posicao,peca):
 
 #DRAW FUNCTIONS
 def draw_Game(Board,Peca):
-    WIN.fill(COLOR_BG)
+    WIN.blit(BackGound_img,(0,0))
     WIN.blit(Board_img,Board)
 
     for i in range(10):
@@ -50,9 +51,10 @@ def draw_Game(Board,Peca):
     pygame.display.update()
 
 def draw_Menu(Botoes):
-    WIN.fill(MENU_BG)
-    WIN.blit(Mulher_Egito_img,(0,100))
-    WIN.blit(Homem_Passaro_img,(700,150))
+    
+    WIN.blit(BackGound_img,(0,0))
+    WIN.blit(Mulher_Egito_img,(0,150))
+    WIN.blit(Homem_Passaro_img,(700,200))
     WIN.blit(Senet_Logo_img,(300,30))
     #botoes---
     WIN.blit(NJogo_img,Botoes[0])
@@ -80,6 +82,7 @@ def Main_Menu():
         for event in pygame.event.get(): #Fechar programa no X
             if event.type == pygame.QUIT:
                 run = False
+
         draw_Menu(Botoes)
 
         #main Loop  
@@ -110,6 +113,6 @@ def Game():
 
 #RUN MAIN LOOP
 
-Main_Menu()
+Game()
 
 pygame.quit()
