@@ -9,7 +9,7 @@ COLOR_BG = (142,160,118)
 MENU_BG = (142,160,118)
 FPS = 60
 BORDAX = 100
-BORDAY = 100
+BORDAY = 160
 CLOCK = pygame.time.Clock()
 
 SEQUENCIA =     [0,1,2,3,4,9,8,7,6,5,
@@ -86,16 +86,11 @@ def posicao_da_peca_comida(Vetor_Pos,Index_Comida):
                     cond = False
             if cond:
                 return j
-
   
-
-
-
-    
 #funcao de posicao no tabuleiro em x e y            
 def posicao_peca(posicao,peca,Vetor_Pos,index): #digo em que posicao quero a peça
     peca[index].x = (SEQUENCIA[posicao] % 10 ) * 80 + BORDAX
-    peca[index].y = (SEQUENCIA[posicao] // 10 ) * 80 + 20  
+    peca[index].y = (SEQUENCIA[posicao] // 10 ) * 80 + BORDAY - 80
     Vetor_Pos[index] = posicao
 
 def foi_comida(posicao):
@@ -122,13 +117,13 @@ def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #digo quanto quero 
             else:
                 posicao_peca(posicao,peca,Vetor_Pos,index)
 
-
-
-
 #DRAW FUNCTIONS
-def draw_Game(Board,Peca):
+def draw_Game(Board,Peca,Sair,Lanca_Paus):
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Board_img,Board)
+    pygame.draw.rect(WIN,(0,0,0),Sair)
+    pygame.draw.rect(WIN,(0,0,0),Lanca_Paus)
+
 
     for i in range(10):
         if i %2 == 0: #se peça for par é branca
@@ -192,6 +187,8 @@ def Main_Menu():
 def Game():
     #Geraçao de retangulos para jogo
     Board = pygame.Rect(BORDAX,BORDAY,800,240) #retangulo da board
+    Sair = pygame.Rect(5,5,220,80)
+    Lanca_Paus = pygame.Rect(625,480,220,80)
     Peca = []
     Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
     for i in range (10):
@@ -205,10 +202,14 @@ def Game():
         for event in pygame.event.get(): #Fechar programa no X
             if event.type == pygame.QUIT:
                 pygame.quit()
-        #main loop  
+        #main loop 
+        #lancamento de sticks 
+        
+
+        #detencao de clicks em pecas
         for i in range (10):
             if Peca[i].collidepoint(Posicao_rato) and pygame.mouse.get_pressed()[0]:
-                mover_peca_incremento(1,Peca,Vetor_Posicoes_Pecas,i)
+                mover_peca_incremento(throw_sticks(),Peca,Vetor_Posicoes_Pecas,i)
                 print(Vetor_Posicoes_Pecas)
                 if i % 2 == 0: #peca par
                     print("clicou na peca Branca index -> ",i)
@@ -216,7 +217,7 @@ def Game():
                     print("clicou na peca Preta index -> ",i)
 
        
-        draw_Game(Board,Peca)
+        draw_Game(Board,Peca,Sair,Lanca_Paus)
         
         
 #RUN MAIN LOOP
