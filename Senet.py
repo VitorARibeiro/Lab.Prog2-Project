@@ -212,6 +212,12 @@ def draw_Menu(Botoes):
     
     pygame.display.update()
 
+def draw_Winning_Screen (Sair):
+    WIN.blit(BackGound_img,(0,0))
+    WIN.blit(Sair_img,Sair)
+    pygame.display.update()
+
+    
 #------------------MENUS E JOGO----------------------
 
 def Main_Menu():
@@ -312,7 +318,7 @@ def Game():
                                 mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)                            
                                 break
 
-                #clicar para lancar varas/paus
+                #clicar para lancar varas/paus 
                 if Lanca_Paus.collidepoint(Posicao_rato):
                     print("lancar paus")
                     lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
@@ -325,10 +331,31 @@ def Game():
 
        
         draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento)
-        
+
+def Winning_Screen():
+    #retangulos 
+    Sair = pygame.Rect(5,5,220,80)
+
+    run = True
+    while run:
+        CLOCK.tick(FPS)
+        Posicao_rato = pygame.mouse.get_pos() #posicao do rato
+        for event in pygame.event.get(): #Fechar programa no X
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if Sair.collidepoint(Posicao_rato):
+                    Main_Menu()
+
+
+        draw_Winning_Screen(Sair)
+                
+
+    
         
 #RUN MAIN LOOP
-Main_Menu()
+Winning_Screen()
 
 
 pygame.quit()
