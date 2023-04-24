@@ -1,12 +1,13 @@
 import pygame,os,random
 
+pygame.init()
+
 #Nome Janela
 pygame.display.set_caption('Senet')
 #VARIAVEIS GLOBAIS
 WIDTH, HEIGHT = 1000,700
 WIN = pygame.display.set_mode((WIDTH,HEIGHT))
-COLOR_BG = (142,160,118)
-MENU_BG = (142,160,118)
+TEXT_COLOR = (243, 243, 251)
 FPS = 60
 BORDAX = 100
 BORDAY = 160
@@ -33,6 +34,12 @@ Definicoes_img = pygame.image.load(os.path.join('Assets','Definicoes_img.png'))
 Sair_img = pygame.image.load(os.path.join('Assets','Sair.png'))
 BackGound_img = pygame.image.load(os.path.join('Assets','BG.png'))
 Sair_Guardar_img = pygame.image.load(os.path.join('Assets','Sair_Guardar.png'))
+Lancar_Varas_img = pygame.image.load(os.path.join('Assets','Lancar_varas.png'))
+Board_lancamento_img = pygame.image.load(os.path.join('Assets','Board_lancamentos.png'))
+Consola_Jogo_img = pygame.image.load(os.path.join('Assets','Consola_Jogo.png'))
+mini_peca_preta = pygame.transform.scale_by(Peca_Preta_img,0.8)
+mini_peca_branca = pygame.transform.scale_by(Peca_Branca_img,0.7)
+
 
 
 #DEFINICAO DE FUNCOES
@@ -155,11 +162,15 @@ def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #Logica principal d
     
 
 #DRAW FUNCTIONS
-def draw_Game(Board,Peca,Sair,Lanca_Paus):
+def draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento):
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Board_img,Board)
     WIN.blit(Sair_Guardar_img,Sair)
-    pygame.draw.rect(WIN,(0,0,0),Lanca_Paus)
+    WIN.blit(Lancar_Varas_img,Lanca_Paus)
+    WIN.blit(Board_lancamento_img,(725,570))
+    WIN.blit(Consola_Jogo_img,(115,480))
+    WIN.blit(text_lancamento,(764,595))
+    WIN.blit(mini_peca_preta,(315,505))
 
 
     for i in range(10):
@@ -225,12 +236,14 @@ def Game():
     #Geraçao de retangulos para jogo
     Board = pygame.Rect(BORDAX,BORDAY,800,240) #retangulo da board
     Sair = pygame.Rect(5,5,220,80)
-    Lanca_Paus = pygame.Rect(625,480,220,80)
+    Lanca_Paus = pygame.Rect(675,480,210,80)
     Peca = []
     Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
     #gerar novo jogo
     new_game(Peca,Vetor_Posicoes_Pecas)
-    
+    #texto no ecra
+    font_lancamento = pygame.font.Font(None, 80)
+    text_lancamento = font_lancamento.render("5",True,TEXT_COLOR)
 
     run = True
     while run:
@@ -262,7 +275,7 @@ def Game():
                     Main_Menu()
 
        
-        draw_Game(Board,Peca,Sair,Lanca_Paus)
+        draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento)
         
         
 #RUN MAIN LOOP
