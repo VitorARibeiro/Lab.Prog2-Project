@@ -43,6 +43,7 @@ def throw_sticks():
     print(jogadas)
     return jogadas
     #2 ou 3 passa-se ao adeversario else
+
 def new_game(Peca,Vetor_Pos):
     for i in range (10): #gerar novo jogo
         Peca.append(pygame.Rect (0,0,80,80)) #gerar pecas no topo do ecra
@@ -57,8 +58,28 @@ def move_check(posicao,Vetor_Pos,index):
         return False
     else:
         for i in range(10):
-            if Vetor_Pos[i] == posicao and index%2 == i%2 and i != index: #se tiverem na mesma posicao e mesma cor
+            if Vetor_Pos[i] == posicao and index%2 == i%2 and i != index: #--------se tiverem na mesma posicao e mesma cor
                 pode_mover = False
+            elif Vetor_Pos[i] == posicao and i!= index and index%2 != i%2: #-----mesmo posicao e cor diferente
+                #checkar vizinhanca--protecao aliada---
+                for item_antes in Vetor_Pos:
+                    if item_antes == Vetor_Pos[i]-1: #se encontrar peca com a mesma cor antes nao move
+                        if  i%2 == Vetor_Pos.index(Vetor_Pos[i]-1) %2:
+                            pode_mover = False
+                for item_depois in Vetor_Pos:
+                    if item_depois == Vetor_Pos[i]+1: #se encontrar peca com a mesma cor depois nao move
+                        if  i%2 == Vetor_Pos.index(Vetor_Pos[i]+1) %2:
+                            pode_mover = False
+                #mesmo com cores diferentes, nestas casas nao podem ser comidas ---casa da beleza e vida---                
+                if Vetor_Pos[i] == 24 or Vetor_Pos[i] == 35:
+                    pode_mover=False
+            else: #----------nao depende de cor-----------
+                for item in Vetor_Pos:
+                    if posicao == 36 and item == 24: 
+                        pode_mover = False
+            
+
+
         return pode_mover
 
 def comer_check(posicao,Vetor_Pos,index):
@@ -219,11 +240,20 @@ def Game():
 
             if  event.type == pygame.MOUSEBUTTONDOWN:
                 #clicar nas pecas
-                for i in range (10):
-                    if Peca[i].collidepoint(Posicao_rato):
-                        print("colidida")
-                        mover_peca_incremento(throw_sticks(),Peca,Vetor_Posicoes_Pecas,i)
-                        break
+                if pygame.mouse.get_pressed()[0]: #andar para a frente
+                    for i in range (10):
+                        if Peca[i].collidepoint(Posicao_rato):
+                            print("colidida")
+                            mover_peca_incremento(1,Peca,Vetor_Posicoes_Pecas,i)
+                            break
+                elif pygame.mouse.get_pressed()[2]: #andar para tras
+                      for i in range (10):
+                        if Peca[i].collidepoint(Posicao_rato):
+                            print("colidida")
+                            mover_peca_incremento(-1,Peca,Vetor_Posicoes_Pecas,i)
+                            break
+
+           
 
                 #clicar para sair
                 if Sair.collidepoint(Posicao_rato):
