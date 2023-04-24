@@ -16,7 +16,7 @@ SEQUENCIA =     [0,1,2,3,4,9,8,7,6,5,
                  10,11,12,13,14,15,16,17,18,19,
                  29,28,27,26,25,24,23,22,21,20,
                  30,31,32,33,34,35,36,37,38,39,
-                 40,41,42,43,44,45,46,47,48,49]
+                 40,41,42,43,44,49,48,47,46,45]
 
 
 #IMAGENS 
@@ -43,6 +43,11 @@ def throw_sticks():
     print(jogadas)
     return jogadas
 
+def new_game(Peca,Vetor_Pos):
+    for i in range (10): #gerar novo jogo
+        Peca.append(pygame.Rect (0,0,80,80)) #gerar pecas no topo do ecra
+        posicao_peca(i+10,Peca,Vetor_Pos,i) #definir automaticamente posicao da peça
+
 #check por incremento
         
 #check por posicao absoluta
@@ -59,7 +64,7 @@ def comer_check(posicao,Vetor_Pos,index):
             if Vetor_Pos[i] == posicao and index%2 != i%2 and i != index: #se tiverem cor diferente
                 pode_comer = True
     return pode_comer
-            
+
 def comer_peca(posicao,peca,Vetor_Pos,index):
     inicial = index
     for i in range(10):
@@ -68,7 +73,7 @@ def comer_peca(posicao,peca,Vetor_Pos,index):
     posicao_peca(posicao,peca,Vetor_Pos,inicial)
 
     posicao_peca(posicao_da_peca_comida(Vetor_Pos,final),peca,Vetor_Pos,final)
-
+   
 def posicao_da_peca_comida(Vetor_Pos,Index_Comida):
     #descobrir se preta ou branca
     if Index_Comida % 2 == 0: #peca branca
@@ -100,23 +105,56 @@ def foi_comida(posicao):
     else:
         return False
     
+def fim_check(incremento,Vetor_Pos,index): #checka se a peca vai sair do tabuleiro
+    if Vetor_Pos[index] + incremento > 39:
+        return True
+
+def posicao_da_peca_fim(Vetor_Pos,index):#define em que posicao as pecas ficam no fim
+    #descobrir se preta ou branca
+    if index % 2 == 0: #peca branca
+        for j in range(40,45):
+            cond = True
+            for i in range(10):
+                if Vetor_Pos[i] == j:
+                    cond = False
+            if cond:
+                return j
+    else: #se a peça for preta
+        for j in range(45,50):
+            cond = True
+            for i in range(10):
+                if Vetor_Pos[i] == j:
+                    cond = False
+            if cond:
+                return j
+
+def mover_fim(peca,Vetor_Pos,index):
+    posicao_peca(posicao_da_peca_fim(Vetor_Pos,index),peca,Vetor_Pos,index)
+    
+def peca_nao_terminou_jogo(Vetor_Pos,index):
+    if Vetor_Pos[index]<40:
+        return True
+    
+
 def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #digo quanto quero que a peca avance
     posicao = Vetor_Pos[index] + incremento
     posicao_comida = 9 + incremento #pois 9 + 1 volta ao inicio da board
-    if foi_comida(posicao):
-        if move_check(posicao_comida,Vetor_Pos,index): #se for possivel mover a peca
-            print("E possivel mover")
-            if comer_check(posicao_comida,Vetor_Pos,index): #se for preciso comer uma peça
-                comer_peca(posicao_comida,peca,Vetor_Pos,index)
-            else:
-                posicao_peca(posicao_comida,peca,Vetor_Pos,index)
-    else:
-        if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca
-            print("E possivel mover")
-            if comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
-                comer_peca(posicao,peca,Vetor_Pos,index)
-            else:
-                posicao_peca(posicao,peca,Vetor_Pos,index)
+    if peca_nao_terminou_jogo(Vetor_Pos,index): #nao esta no fim
+        if foi_comida(posicao):
+            if move_check(posicao_comida,Vetor_Pos,index): #se for possivel mover a peca
+                if comer_check(posicao_comida,Vetor_Pos,index): #se for preciso comer uma peça
+                    comer_peca(posicao_comida,peca,Vetor_Pos,index)
+                else:
+                    posicao_peca(posicao_comida,peca,Vetor_Pos,index)
+        elif fim_check(incremento,Vetor_Pos,index):
+            mover_fim(peca,Vetor_Pos,index)
+        else:
+            if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca
+                if comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
+                    comer_peca(posicao,peca,Vetor_Pos,index)
+                else:
+                    posicao_peca(posicao,peca,Vetor_Pos,index)
+    
 
 #DRAW FUNCTIONS
 def draw_Game(Board,Peca,Sair,Lanca_Paus):
@@ -158,6 +196,7 @@ def Main_Menu():
     Botao_descricao =  pygame.Rect(375,345,250,90)
     Botao_definicoes =  pygame.Rect(375,440,250,90)
     Botao_sair = pygame.Rect(375,535,250,90)
+
     Botoes = [Botao_NJogo,Botao_carregar,Botao_descricao,Botao_definicoes,Botao_sair]
     run = True
     while run:
@@ -166,23 +205,22 @@ def Main_Menu():
         for event in pygame.event.get(): #Fechar programa no X
             if event.type == pygame.QUIT:
                 pygame.quit()
-
-        #main Loop  
-        draw_Menu(Botoes)
-        for i in range(5):
             
-            if Botoes[i].collidepoint(Posicao_rato) and pygame.mouse.get_pressed()[0]:
-                
-                if i == 0:
-                    Game() #inicia Jogo
-                elif i == 1:
-                    run = False
-                elif i == 2:
-                    run = False
-                elif i == 3:
-                    run = False
-                elif i == 4:
-                    pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for i in range(5):
+                    if Botoes[i].collidepoint(Posicao_rato):
+                        
+                        if i == 0:
+                            Game() #inicia Jogo
+                        elif i == 1:
+                            run = False
+                        elif i == 2:
+                            run = False
+                        elif i == 3:
+                            run = False
+                        elif i == 4:
+                            pygame.quit()
+        draw_Menu(Botoes)
                         
 #definição da funcao principal
 def Game():
@@ -192,9 +230,9 @@ def Game():
     Lanca_Paus = pygame.Rect(625,480,220,80)
     Peca = []
     Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
-    for i in range (10):
-        Peca.append(pygame.Rect (0,0,80,80)) #gerar pecas no topo do ecra
-        posicao_peca(i+10,Peca,Vetor_Posicoes_Pecas,i) #definir automaticamente posicao da peça
+    #gerar novo jogo
+    new_game(Peca,Vetor_Posicoes_Pecas)
+    
 
     run = True
     while run:
@@ -203,24 +241,15 @@ def Game():
         for event in pygame.event.get(): #Fechar programa no X
             if event.type == pygame.QUIT:
                 pygame.quit()
-        #main loop 
-        #lancamento de sticks 
-        
 
-        #detencao de clicks em pecas
-        if pygame.mouse.get_pressed()[0]:
-            #clicar nas pessas
-            for i in range (10):
-                if Peca[i].collidepoint(Posicao_rato):
-                    mover_peca_incremento(throw_sticks(),Peca,Vetor_Posicoes_Pecas,i)
-                    print(Vetor_Posicoes_Pecas)
-                    if i % 2 == 0: #peca par
-                        print("clicou na peca Branca index -> ",i)
-                    else:
-                        print("clicou na peca Preta index -> ",i)
-            #clicar para sair
-            if Sair.collidepoint(Posicao_rato):
-                Main_Menu()
+            if  event.type == pygame.MOUSEBUTTONDOWN:
+                #clicar nas pessas
+                for i in range (10):
+                    if Peca[i].collidepoint(Posicao_rato):
+                        mover_peca_incremento(throw_sticks(),Peca,Vetor_Posicoes_Pecas,i)
+                #clicar para sair
+                if Sair.collidepoint(Posicao_rato):
+                    Main_Menu()
 
        
         draw_Game(Board,Peca,Sair,Lanca_Paus)
