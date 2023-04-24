@@ -11,7 +11,13 @@ TEXT_COLOR = (243, 243, 251)
 FPS = 60
 BORDAX = 100
 BORDAY = 160
+Jogador = 0
+lancamento = 0
+lancamento_Passado = 0
+
+Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
 CLOCK = pygame.time.Clock()
+
 
 SEQUENCIA =     [0,1,2,3,4,9,8,7,6,5,
                  10,11,12,13,14,15,16,17,18,19,
@@ -46,8 +52,10 @@ mini_peca_branca = pygame.transform.scale_by(Peca_Branca_img,0.7)
 
 #funcao de lançamento de sticjs
 def throw_sticks():
+    global Jogador
     jogadas = random.randint(1,5)
-    print(jogadas)
+    if lancamento_Passado == 2 or lancamento_Passado == 3:#se a jogada anterior foi 2 ou 3 avanca
+        Jogador += 1
     return jogadas
     #2 ou 3 passa-se ao adeversario else
 
@@ -109,9 +117,12 @@ def comer_peca(posicao_final,peca,Vetor_Pos,index):
   
 #funcao de posicao no tabuleiro em x e y            
 def posicao_peca(posicao,peca,Vetor_Pos,index): #digo em que posicao quero a peça
+    global lancamento,lancamento_Passado
     peca[index].x = (SEQUENCIA[posicao] % 10 ) * 80 + BORDAX
     peca[index].y = (SEQUENCIA[posicao] // 10 ) * 80 + BORDAY - 80
     Vetor_Pos[index] = posicao
+    lancamento_Passado = lancamento
+    lancamento = 0 
 
     
 def fim_check(incremento,Vetor_Pos,index): #checka se a peca vai sair do tabuleiro
@@ -147,7 +158,7 @@ def peca_nao_terminou_jogo(Vetor_Pos,index):
 
 def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #Logica principal do jogo
     posicao = Vetor_Pos[index] + incremento
-    if peca_nao_terminou_jogo(Vetor_Pos,index): #nao esta no fim
+    if peca_nao_terminou_jogo(Vetor_Pos,index) and incremento!=0: #nao esta no fim
 
         if fim_check(incremento,Vetor_Pos,index):
             mover_fim(peca,Vetor_Pos,index)
@@ -159,10 +170,12 @@ def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #Logica principal d
                     posicao_peca(24,peca,Vetor_Pos,index)
                 else:
                     posicao_peca(posicao,peca,Vetor_Pos,index)
-    
+    else:
+        print("nao joga")
 
 #DRAW FUNCTIONS
 def draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento):
+    global Jogador
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Board_img,Board)
     WIN.blit(Sair_Guardar_img,Sair)
@@ -170,7 +183,11 @@ def draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento):
     WIN.blit(Board_lancamento_img,(725,570))
     WIN.blit(Consola_Jogo_img,(115,480))
     WIN.blit(text_lancamento,(764,595))
-    WIN.blit(mini_peca_preta,(315,505))
+
+    if Jogador % 2 == 0: #pecas brancas
+        WIN.blit(mini_peca_branca,(315,505))
+    else:
+        WIN.blit(mini_peca_preta,(315,505))
 
 
     for i in range(10):
@@ -238,35 +255,67 @@ def Game():
     Sair = pygame.Rect(5,5,220,80)
     Lanca_Paus = pygame.Rect(675,480,210,80)
     Peca = []
-    Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
-    #gerar novo jogo
-    new_game(Peca,Vetor_Posicoes_Pecas)
     #texto no ecra
     font_lancamento = pygame.font.Font(None, 80)
-    text_lancamento = font_lancamento.render("5",True,TEXT_COLOR)
+    text_lancamento = font_lancamento.render(" ",True,TEXT_COLOR)
+    #Globais
+    global lancamento
+    global Jogador
+    global Vetor_Posicoes_Pecas 
+    #
+    pecas_brancas = [0,2,4,6,8]
+    pecas_pretas = [1,3,5,7,9]
+
+    #gerar novo jogo
+    new_game(Peca,Vetor_Posicoes_Pecas)
 
     run = True
     while run:
+        
         Posicao_rato = pygame.mouse.get_pos() #posicao do rato
         CLOCK.tick(FPS)
+        #jogadas a fazer
+        if lancamento != 0:
+            text_lancamento = font_lancamento.render(str(lancamento),True,TEXT_COLOR)
+        else:
+            text_lancamento = font_lancamento.render(" ",True,TEXT_COLOR)
+
+
+
         for event in pygame.event.get(): #Fechar programa no X
             if event.type == pygame.QUIT:
                 pygame.quit()
 
             if  event.type == pygame.MOUSEBUTTONDOWN:
                 #clicar nas pecas
+                
                 if pygame.mouse.get_pressed()[0]: #andar para a frente
-                    for i in range (10):
-                        if Peca[i].collidepoint(Posicao_rato):
-                            print("colidida")
-                            mover_peca_incremento(1,Peca,Vetor_Posicoes_Pecas,i)
-                            break
+                    if Jogador % 2 == 0: #pecas brancas
+                        for position in pecas_brancas:
+                            if Peca[position].collidepoint(Posicao_rato):
+                                mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
+                                break
+                    else:#pecas pretas
+                          for position in pecas_pretas:
+                            if Peca[position].collidepoint(Posicao_rato):
+                                mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
+                                break
                 elif pygame.mouse.get_pressed()[2]: #andar para tras
-                      for i in range (10):
-                        if Peca[i].collidepoint(Posicao_rato):
-                            print("colidida")
-                            mover_peca_incremento(-1,Peca,Vetor_Posicoes_Pecas,i)
-                            break
+                    if Jogador % 2 == 0: #pecas brancas
+                        for position in pecas_brancas:
+                            if Peca[position].collidepoint(Posicao_rato):
+                                mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)    
+                                break
+                    else:#pecas pretas
+                          for position in pecas_pretas:
+                            if Peca[position].collidepoint(Posicao_rato):
+                                mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)                            
+                                break
+
+                #clicar para lancar varas/paus
+                if Lanca_Paus.collidepoint(Posicao_rato):
+                    print("lancar paus")
+                    lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
 
            
 
