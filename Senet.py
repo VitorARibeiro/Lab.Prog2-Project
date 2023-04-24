@@ -32,6 +32,7 @@ Ajuda_img = pygame.image.load(os.path.join('Assets','Ajuda_img.png'))
 Definicoes_img = pygame.image.load(os.path.join('Assets','Definicoes_img.png'))
 Sair_img = pygame.image.load(os.path.join('Assets','Sair.png'))
 BackGound_img = pygame.image.load(os.path.join('Assets','BG.png'))
+Sair_Guardar_img = pygame.image.load(os.path.join('Assets','Sair_Guardar.png'))
 
 
 #DEFINICAO DE FUNCOES
@@ -121,7 +122,7 @@ def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #digo quanto quero 
 def draw_Game(Board,Peca,Sair,Lanca_Paus):
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Board_img,Board)
-    pygame.draw.rect(WIN,(0,0,0),Sair)
+    WIN.blit(Sair_Guardar_img,Sair)
     pygame.draw.rect(WIN,(0,0,0),Lanca_Paus)
 
 
@@ -181,7 +182,7 @@ def Main_Menu():
                 elif i == 3:
                     run = False
                 elif i == 4:
-                    run = False #Sair
+                    pygame.quit()
                         
 #definição da funcao principal
 def Game():
@@ -207,21 +208,26 @@ def Game():
         
 
         #detencao de clicks em pecas
-        for i in range (10):
-            if Peca[i].collidepoint(Posicao_rato) and pygame.mouse.get_pressed()[0]:
-                mover_peca_incremento(throw_sticks(),Peca,Vetor_Posicoes_Pecas,i)
-                print(Vetor_Posicoes_Pecas)
-                if i % 2 == 0: #peca par
-                    print("clicou na peca Branca index -> ",i)
-                else:
-                    print("clicou na peca Preta index -> ",i)
+        if pygame.mouse.get_pressed()[0]:
+            #clicar nas pessas
+            for i in range (10):
+                if Peca[i].collidepoint(Posicao_rato):
+                    mover_peca_incremento(throw_sticks(),Peca,Vetor_Posicoes_Pecas,i)
+                    print(Vetor_Posicoes_Pecas)
+                    if i % 2 == 0: #peca par
+                        print("clicou na peca Branca index -> ",i)
+                    else:
+                        print("clicou na peca Preta index -> ",i)
+            #clicar para sair
+            if Sair.collidepoint(Posicao_rato):
+                Main_Menu()
 
        
         draw_Game(Board,Peca,Sair,Lanca_Paus)
         
         
 #RUN MAIN LOOP
-Game()
+Main_Menu()
 
 
 pygame.quit()
