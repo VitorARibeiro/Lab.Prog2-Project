@@ -53,10 +53,13 @@ def new_game(Peca,Vetor_Pos):
 #check por posicao absoluta
 def move_check(posicao,Vetor_Pos,index):
     pode_mover = True
-    for i in range(10):
-        if Vetor_Pos[i] == posicao and index%2 == i%2 and i != index: #se tiverem na mesma posicao e mesma cor
-            pode_mover = False
-    return pode_mover
+    if posicao<10: #nao pode ir para zona superior
+        return False
+    else:
+        for i in range(10):
+            if Vetor_Pos[i] == posicao and index%2 == i%2 and i != index: #se tiverem na mesma posicao e mesma cor
+                pode_mover = False
+        return pode_mover
 
 def comer_check(posicao,Vetor_Pos,index):
     pode_comer = False
@@ -219,9 +222,9 @@ def Game():
                 for i in range (10):
                     if Peca[i].collidepoint(Posicao_rato):
                         print("colidida")
-                        mover_peca_incremento(1,Peca,Vetor_Posicoes_Pecas,i)
+                        mover_peca_incremento(throw_sticks(),Peca,Vetor_Posicoes_Pecas,i)
                         break
-                    
+
                 #clicar para sair
                 if Sair.collidepoint(Posicao_rato):
                     Main_Menu()
