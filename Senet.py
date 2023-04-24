@@ -148,6 +148,8 @@ def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #Logica principal d
             if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca
                 if comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
                     comer_peca(posicao,peca,Vetor_Pos,index)
+                elif posicao == 36:
+                    posicao_peca(24,peca,Vetor_Pos,index)
                 else:
                     posicao_peca(posicao,peca,Vetor_Pos,index)
     
