@@ -26,7 +26,7 @@ SEQUENCIA =     [0,1,2,3,4,9,8,7,6,5,
                  40,41,42,43,44,49,48,47,46,45]
 
 
-#IMAGENS 
+#----IMAGENS 
 Board_img = pygame.image.load(os.path.join('Assets','Board Senet.png'))
 Peca_Preta_img = pygame.image.load(os.path.join('Assets','Triangulo_Preto.png'))
 Peca_Branca_img = pygame.image.load(os.path.join('Assets','Circulo_Branco.png'))
