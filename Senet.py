@@ -42,7 +42,7 @@ def throw_sticks():
     jogadas = random.randint(1,5)
     print(jogadas)
     return jogadas
-
+    #2 ou 3 passa-se ao adeversario else
 def new_game(Peca,Vetor_Pos):
     for i in range (10): #gerar novo jogo
         Peca.append(pygame.Rect (0,0,80,80)) #gerar pecas no topo do ecra
@@ -65,33 +65,16 @@ def comer_check(posicao,Vetor_Pos,index):
                 pode_comer = True
     return pode_comer
 
-def comer_peca(posicao,peca,Vetor_Pos,index):
-    inicial = index
+def comer_peca(posicao_final,peca,Vetor_Pos,index):
+    pos_inicio = Vetor_Pos[index]
     for i in range(10):
-        if Vetor_Pos[i] == posicao and i != index:
+        if Vetor_Pos[i] == posicao_final and i != index:
             final = i
-    posicao_peca(posicao,peca,Vetor_Pos,inicial)
-
-    posicao_peca(posicao_da_peca_comida(Vetor_Pos,final),peca,Vetor_Pos,final)
+    
+    posicao_peca(posicao_final,peca,Vetor_Pos,index) #move peca inicial para a posicao final
+    posicao_peca(pos_inicio,peca,Vetor_Pos,final) #move peca final para inicio
+  
    
-def posicao_da_peca_comida(Vetor_Pos,Index_Comida):
-    #descobrir se preta ou branca
-    if Index_Comida % 2 == 0: #peca branca
-        for j in range(5):
-            cond = True
-            for i in range(10):
-                if Vetor_Pos[i] == j:
-                    cond = False
-            if cond:
-                return j
-    else: #se a peça for preta
-        for j in range(5,10):
-            cond = True
-            for i in range(10):
-                if Vetor_Pos[i] == j:
-                    cond = False
-            if cond:
-                return j
   
 #funcao de posicao no tabuleiro em x e y            
 def posicao_peca(posicao,peca,Vetor_Pos,index): #digo em que posicao quero a peça
@@ -99,11 +82,6 @@ def posicao_peca(posicao,peca,Vetor_Pos,index): #digo em que posicao quero a pe�
     peca[index].y = (SEQUENCIA[posicao] // 10 ) * 80 + BORDAY - 80
     Vetor_Pos[index] = posicao
 
-def foi_comida(posicao):
-    if posicao <=9:
-        return True
-    else:
-        return False
     
 def fim_check(incremento,Vetor_Pos,index): #checka se a peca vai sair do tabuleiro
     if Vetor_Pos[index] + incremento > 39:
@@ -136,17 +114,11 @@ def peca_nao_terminou_jogo(Vetor_Pos,index):
         return True
     
 
-def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #digo quanto quero que a peca avance
+def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #Logica principal do jogo
     posicao = Vetor_Pos[index] + incremento
-    posicao_comida = 9 + incremento #pois 9 + 1 volta ao inicio da board
     if peca_nao_terminou_jogo(Vetor_Pos,index): #nao esta no fim
-        if foi_comida(posicao):
-            if move_check(posicao_comida,Vetor_Pos,index): #se for possivel mover a peca
-                if comer_check(posicao_comida,Vetor_Pos,index): #se for preciso comer uma peça
-                    comer_peca(posicao_comida,peca,Vetor_Pos,index)
-                else:
-                    posicao_peca(posicao_comida,peca,Vetor_Pos,index)
-        elif fim_check(incremento,Vetor_Pos,index):
+
+        if fim_check(incremento,Vetor_Pos,index):
             mover_fim(peca,Vetor_Pos,index)
         else:
             if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca
@@ -243,10 +215,13 @@ def Game():
                 pygame.quit()
 
             if  event.type == pygame.MOUSEBUTTONDOWN:
-                #clicar nas pessas
+                #clicar nas pecas
                 for i in range (10):
                     if Peca[i].collidepoint(Posicao_rato):
-                        mover_peca_incremento(throw_sticks(),Peca,Vetor_Posicoes_Pecas,i)
+                        print("colidida")
+                        mover_peca_incremento(1,Peca,Vetor_Posicoes_Pecas,i)
+                        break
+                    
                 #clicar para sair
                 if Sair.collidepoint(Posicao_rato):
                     Main_Menu()
