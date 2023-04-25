@@ -45,24 +45,29 @@ Board_lancamento_img = pygame.image.load(os.path.join('Assets','Board_lancamento
 Consola_Jogo_img = pygame.image.load(os.path.join('Assets','Consola_Jogo.png'))
 mini_peca_preta = pygame.transform.scale_by(Peca_Preta_img,0.8)
 mini_peca_branca = pygame.transform.scale_by(Peca_Branca_img,0.7)
-
-
+Big_peca_preta = pygame.transform.scale_by(Peca_Preta_img,2)
+Big_peca_branca = pygame.transform.scale_by(Peca_Branca_img,2)
+Winning_Board= pygame.image.load(os.path.join('Assets','Winning_Board.png'))
 
 #DEFINICAO DE FUNCOES
 
 #funcao de lançamento de sticjs
 def throw_sticks():
-    global Jogador
     jogadas = random.randint(1,5)
-    if lancamento_Passado == 2 or lancamento_Passado == 3:#se a jogada anterior foi 2 ou 3 avanca
-        Jogador += 1
     return jogadas
     #2 ou 3 passa-se ao adeversario else
 
+def next_player():
+     global Jogador,lancamento_Passado
+     if lancamento_Passado == 2 or lancamento_Passado == 3:#se a jogada anterior foi 2 ou 3 avanca
+        Jogador += 1
+
 def new_game(Peca,Vetor_Pos):
+    global Jogador
     for i in range (10): #gerar novo jogo
         Peca.append(pygame.Rect (0,0,80,80)) #gerar pecas no topo do ecra
         posicao_peca(i+10,Peca,Vetor_Pos,i) #definir automaticamente posicao da peça
+    Jogador = random.randint(0,1)
 
 #check por incremento
         
@@ -122,6 +127,7 @@ def posicao_peca(posicao,peca,Vetor_Pos,index): #digo em que posicao quero a pe�
     peca[index].y = (SEQUENCIA[posicao] // 10 ) * 80 + BORDAY - 80
     Vetor_Pos[index] = posicao
     lancamento_Passado = lancamento
+    next_player()
     lancamento = 0 
 
     
@@ -173,6 +179,21 @@ def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #Logica principal d
     else:
         print("nao joga")
 
+def winning_check(Vetor_pos): #retorna 0 se branco ganhar e 1 se preto ganhar
+    venceu_branco = True
+    venceu_preto = True
+    for i in range (10):
+        if i % 2 == 0: #brancas
+            if Vetor_pos[i] < 40:
+                venceu_branco = False
+        else:
+            if Vetor_pos[i]<40:
+                venceu_preto = False
+    if venceu_branco:
+        return 0
+    elif venceu_preto:
+        return 1
+
 #DRAW FUNCTIONS
 def draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento):
     global Jogador
@@ -212,9 +233,22 @@ def draw_Menu(Botoes):
     
     pygame.display.update()
 
-def draw_Winning_Screen (Sair):
+def draw_Winning_Screen (Sair,index):
+    #definir fonte 
+    font_lancamento = pygame.font.Font(None, 70)
+    text_lancamento = font_lancamento.render("Stuart",True,TEXT_COLOR)
+
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Sair_img,Sair)
+    WIN.blit(Winning_Board,(250,150))
+    #print peca vencedora
+    if index == 0: #peca branca
+        WIN.blit(Big_peca_branca,(420,210))
+    else: #peca preta
+        WIN.blit(Big_peca_preta,(420,210))
+
+    WIN.blit(text_lancamento,(350,380))
+
     pygame.display.update()
 
     
@@ -286,6 +320,11 @@ def Game():
         else:
             text_lancamento = font_lancamento.render(" ",True,TEXT_COLOR)
 
+        #condicao de vitoria 0 branca 1 preta
+        if winning_check(Vetor_Posicoes_Pecas) == 0:
+            Winning_Screen (0)
+        elif winning_check(Vetor_Posicoes_Pecas) == 1:
+            Winning_Screen (1)
 
 
         for event in pygame.event.get(): #Fechar programa no X
@@ -299,28 +338,27 @@ def Game():
                     if Jogador % 2 == 0: #pecas brancas
                         for position in pecas_brancas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
+                                mover_peca_incremento(30,Peca,Vetor_Posicoes_Pecas,position)
                                 break
                     else:#pecas pretas
                           for position in pecas_pretas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
+                                mover_peca_incremento(30,Peca,Vetor_Posicoes_Pecas,position)
                                 break
                 elif pygame.mouse.get_pressed()[2]: #andar para tras
                     if Jogador % 2 == 0: #pecas brancas
                         for position in pecas_brancas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)    
+                                mover_peca_incremento(-30,Peca,Vetor_Posicoes_Pecas,position)    
                                 break
                     else:#pecas pretas
                           for position in pecas_pretas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)                            
+                                mover_peca_incremento(-30,Peca,Vetor_Posicoes_Pecas,position)                            
                                 break
 
                 #clicar para lancar varas/paus 
                 if Lanca_Paus.collidepoint(Posicao_rato):
-                    print("lancar paus")
                     lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
 
            
@@ -332,9 +370,10 @@ def Game():
        
         draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento)
 
-def Winning_Screen():
+def Winning_Screen(index):
     #retangulos 
     Sair = pygame.Rect(5,5,220,80)
+    
 
     run = True
     while run:
@@ -349,13 +388,13 @@ def Winning_Screen():
                     Main_Menu()
 
 
-        draw_Winning_Screen(Sair)
+        draw_Winning_Screen(Sair,index)
                 
 
     
         
 #RUN MAIN LOOP
-Winning_Screen()
+Main_Menu()
 
 
 pygame.quit()
