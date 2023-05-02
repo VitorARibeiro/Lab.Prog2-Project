@@ -338,23 +338,23 @@ def Game():
                     if Jogador % 2 == 0: #pecas brancas
                         for position in pecas_brancas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(30,Peca,Vetor_Posicoes_Pecas,position)
+                                mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
                                 break
                     else:#pecas pretas
                           for position in pecas_pretas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(30,Peca,Vetor_Posicoes_Pecas,position)
+                                mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
                                 break
                 elif pygame.mouse.get_pressed()[2]: #andar para tras
                     if Jogador % 2 == 0: #pecas brancas
                         for position in pecas_brancas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(-30,Peca,Vetor_Posicoes_Pecas,position)    
+                                mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)    
                                 break
                     else:#pecas pretas
                           for position in pecas_pretas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(-30,Peca,Vetor_Posicoes_Pecas,position)                            
+                                mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)                            
                                 break
 
                 #clicar para lancar varas/paus 
