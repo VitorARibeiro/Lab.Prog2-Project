@@ -11,11 +11,15 @@ TEXT_COLOR = (243, 243, 251)
 FPS = 60
 BORDAX = 100
 BORDAY = 160
+
+
+#variaveis a guardar
 Jogador = 0
 lancamento = 0
 lancamento_Passado = 0
-
 Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
+#-----
+
 CLOCK = pygame.time.Clock()
 
 
