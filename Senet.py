@@ -51,6 +51,14 @@ Winning_Board= pygame.image.load(os.path.join('Assets','Winning_Board.png'))
 
 #DEFINICAO DE FUNCOES
 
+
+#savegame e loadgame
+#salvar jogador, lancamento, lancamento_Passado, Vetor_Posicao_Pecas
+def savegame():
+
+def loadgame():
+    
+
 #funcao de lançamento de sticjs
 def throw_sticks():
     jogadas = random.randint(1,5)
