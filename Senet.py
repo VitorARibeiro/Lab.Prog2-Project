@@ -55,7 +55,7 @@ Winning_Board= pygame.image.load(os.path.join('Assets','Winning_Board.png'))
 
 #DEFINICAO DE FUNCOES
 
-#funcao de lançamento de sticjs
+#funcao de lançamento de sticks
 def throw_sticks():
     jogadas = random.randint(1,5)
     return jogadas
@@ -77,9 +77,17 @@ def new_game(Peca,Vetor_Pos):
         
 #check por posicao absoluta
 def move_check(posicao,Vetor_Pos,index):
+    global lancamento
     pode_mover = True
-    if posicao<10: #nao pode ir para zona superior
+    print(Vetor_Pos[index])
+    print (lancamento)
+    if posicao<10 : #nao pode ir para zona superior
         return False
+    elif Vetor_Pos[index] == 37 and lancamento != 3:
+        return False
+    elif Vetor_Pos[index] == 38 and lancamento != 2:
+        return False
+
     else:
         for i in range(10):
             if Vetor_Pos[i] == posicao and index%2 == i%2 and i != index: #--------se tiverem na mesma posicao e mesma cor
@@ -102,8 +110,6 @@ def move_check(posicao,Vetor_Pos,index):
                     if posicao == 36 and item == 24: 
                         pode_mover = False
             
-
-
         return pode_mover
 
 def comer_check(posicao,Vetor_Pos,index):
@@ -170,18 +176,23 @@ def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #Logica principal d
     posicao = Vetor_Pos[index] + incremento
     if peca_nao_terminou_jogo(Vetor_Pos,index) and incremento!=0: #nao esta no fim
 
-        if fim_check(incremento,Vetor_Pos,index):
-            mover_fim(peca,Vetor_Pos,index)
+        
+            
+        if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca  
+            if fim_check(incremento,Vetor_Pos,index):
+                mover_fim(peca,Vetor_Pos,index)  
+
+            elif comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
+                comer_peca(posicao,peca,Vetor_Pos,index)
+                
+            elif posicao == 36:
+                posicao_peca(24,peca,Vetor_Pos,index)
+                
+            else:
+                posicao_peca(posicao,peca,Vetor_Pos,index)
+                
         else:
-            if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca
-                if comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
-                    comer_peca(posicao,peca,Vetor_Pos,index)
-                elif posicao == 36:
-                    posicao_peca(24,peca,Vetor_Pos,index)
-                else:
-                    posicao_peca(posicao,peca,Vetor_Pos,index)
-    else:
-        print("nao joga")
+            print("nao joga")
 
 def winning_check(Vetor_pos): #retorna 0 se branco ganhar e 1 se preto ganhar
     venceu_branco = True
@@ -364,6 +375,8 @@ def Game():
                 #clicar para lancar varas/paus 
                 if Lanca_Paus.collidepoint(Posicao_rato):
                     lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
+                    
+                  
 
            
 
