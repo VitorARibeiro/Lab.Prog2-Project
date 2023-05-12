@@ -18,6 +18,7 @@ Jogador = 0
 lancamento = 0
 lancamento_Passado = 0
 Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
+lancamento_feito = False
 #-----
 
 CLOCK = pygame.time.Clock()
@@ -57,7 +58,9 @@ Winning_Board= pygame.image.load(os.path.join('Assets','Winning_Board.png'))
 
 #funcao de lançamento de sticks
 def throw_sticks():
+    global lancamento_feito
     jogadas = random.randint(1,5)
+    lancamento_feito = True
     return jogadas
     #2 ou 3 passa-se ao adeversario else
 
@@ -77,7 +80,7 @@ def new_game(Peca,Vetor_Pos):
         
 #check por posicao absoluta
 def move_check(posicao,Vetor_Pos,index):
-    global lancamento
+    global lancamento,lancamento_feito
     pode_mover = True
     print(Vetor_Pos[index])
     print (lancamento)
@@ -109,8 +112,11 @@ def move_check(posicao,Vetor_Pos,index):
                 for item in Vetor_Pos:
                     if posicao == 36 and item == 24: 
                         pode_mover = False
-            
-        return pode_mover
+        
+    if pode_mover == True:
+        lancamento_feito = False
+
+    return pode_mover
 
 def comer_check(posicao,Vetor_Pos,index):
     pode_comer = False
@@ -316,7 +322,8 @@ def Game():
     #Globais
     global lancamento
     global Jogador
-    global Vetor_Posicoes_Pecas 
+    global Vetor_Posicoes_Pecas
+    global lancamento_feito 
     #
     pecas_brancas = [0,2,4,6,8]
     pecas_pretas = [1,3,5,7,9]
@@ -373,8 +380,9 @@ def Game():
                                 break
 
                 #clicar para lancar varas/paus 
-                if Lanca_Paus.collidepoint(Posicao_rato):
+                if Lanca_Paus.collidepoint(Posicao_rato) and lancamento_feito == False:
                     lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
+
                     
                   
 
