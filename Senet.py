@@ -58,26 +58,6 @@ Winning_Board= pygame.image.load(os.path.join('Assets','Winning_Board.png'))
 
 #DEFINICAO DE FUNCOES
 
-def savegame(jogador, lancamento, lancamento_Passado, Vetor_Posicao_Pecas):
-    with open("savegame.txt", "w") as arquivo:
-        arquivo.write(f"jogador: {jogador}\n")
-        arquivo.write(f"lancamento: {lancamento}\n")
-        arquivo.write(f"lancamento_Passado: {lancamento_Passado}\n")
-        arquivo.write("Vetor_Posicao_Pecas:\n")
-        for posicao in Vetor_Posicao_Pecas:
-            arquivo.write(f"{posicao}\n")
-jogador = "Vitor Ribeiro"
-lancamento = 5
-lancamento_passado = True
-vetor_posicao_pecas = [1, 3, 5, 7, 9]
-
-savegame('meujogo.txt', jogador, lancamento, lancamento_passado, vetor_posicao_pecas)
-
-
-
-
-
-
 #funcao de lançamento de sticjs
 
 def throw_sticks():
@@ -306,10 +286,14 @@ def draw_Winning_Screen (Sair,index):
 
     pygame.display.update()
 
-def draw_Def_screen(Sair):
+def draw_Def_screen(Sair,Player_0_0,Player_0_1,Player_1_0,Player_1_1):
 
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Sair_img,Sair)
+    pygame.draw.rect(WIN,(0,0,0),Player_0_0)
+    pygame.draw.rect(WIN,(0,0,0),Player_0_1)
+    pygame.draw.rect(WIN,(0,0,0),Player_1_0)
+    pygame.draw.rect(WIN,(0,0,0),Player_1_1)
 
     pygame.display.update()
 
@@ -474,6 +458,11 @@ def Winning_Screen(index):
                 
 def Def_screen():
     Sair = pygame.Rect(5,5,220,80)
+    Player_0_0 = pygame.Rect(200,200,200,80)
+    Player_0_1 = pygame.Rect(200,420,200,80)
+    Player_1_0 = pygame.Rect(600,200,200,80)
+    Player_1_1 = pygame.Rect(600,420,200,80)
+
     
 
     run = True
@@ -487,7 +476,8 @@ def Def_screen():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if Sair.collidepoint(Posicao_rato):
                     Main_Menu()
-        draw_Def_screen(Sair)
+
+        draw_Def_screen(Sair,Player_0_0,Player_0_1,Player_1_0,Player_1_1)
 
     
         
