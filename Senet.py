@@ -64,6 +64,13 @@ def savegame(jogador, lancamento, lancamento_Passado, Vetor_Posicao_Pecas):
         arquivo.write("Vetor_Posicao_Pecas:\n")
         for posicao in Vetor_Posicao_Pecas:
             arquivo.write(f"{posicao}\n")
+jogador = "Vitor Ribeiro"
+lancamento = 5
+lancamento_passado = True
+vetor_posicao_pecas = [1, 3, 5, 7, 9]
+
+savegame('meujogo.txt', jogador, lancamento, lancamento_passado, vetor_posicao_pecas)
+
 
 
 
