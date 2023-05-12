@@ -11,11 +11,16 @@ TEXT_COLOR = (243, 243, 251)
 FPS = 60
 BORDAX = 100
 BORDAY = 160
+
+
+#variaveis a guardar
 Jogador = 0
 lancamento = 0
 lancamento_Passado = 0
-
 Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
+lancamento_feito = False
+#-----
+
 CLOCK = pygame.time.Clock()
 
 
@@ -51,23 +56,11 @@ Winning_Board= pygame.image.load(os.path.join('Assets','Winning_Board.png'))
 
 #DEFINICAO DE FUNCOES
 
-
-#savegame e loadgame
-#salvar jogador, lancamento, lancamento_Passado, Vetor_Posicao_Pecas
-def savegame(jogador, lancamento, lancamento_Passado, Vetor_Posicao_Pecas):
-    with open("savegame.txt", "w") as arquivo:
-        arquivo.write(f"jogador: {jogador}\n")
-        arquivo.write(f"lancamento: {lancamento}\n")
-        arquivo.write(f"lancamento_Passado: {lancamento_Passado}\n")
-        arquivo.write("Vetor_Posicao_Pecas:\n")
-        for posicao in Vetor_Posicao_Pecas:
-            arquivo.write(f"{posicao}\n")
-
-
-
 #funcao de lançamento de sticjs
 def throw_sticks():
+    global lancamento_feito
     jogadas = random.randint(1,5)
+    lancamento_feito = True
     return jogadas
     #2 ou 3 passa-se ao adeversario else
 
@@ -87,9 +80,17 @@ def new_game(Peca,Vetor_Pos):
         
 #check por posicao absoluta
 def move_check(posicao,Vetor_Pos,index):
+    global lancamento,lancamento_feito
     pode_mover = True
-    if posicao<10: #nao pode ir para zona superior
+    print(Vetor_Pos[index])
+    print (lancamento)
+    if posicao<10 : #nao pode ir para zona superior
         return False
+    elif Vetor_Pos[index] == 37 and lancamento != 3:
+        return False
+    elif Vetor_Pos[index] == 38 and lancamento != 2:
+        return False
+
     else:
         for i in range(10):
             if Vetor_Pos[i] == posicao and index%2 == i%2 and i != index: #--------se tiverem na mesma posicao e mesma cor
@@ -111,10 +112,11 @@ def move_check(posicao,Vetor_Pos,index):
                 for item in Vetor_Pos:
                     if posicao == 36 and item == 24: 
                         pode_mover = False
-            
+        
+    if pode_mover == True:
+        lancamento_feito = False
 
-
-        return pode_mover
+    return pode_mover
 
 def comer_check(posicao,Vetor_Pos,index):
     pode_comer = False
@@ -180,18 +182,23 @@ def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #Logica principal d
     posicao = Vetor_Pos[index] + incremento
     if peca_nao_terminou_jogo(Vetor_Pos,index) and incremento!=0: #nao esta no fim
 
-        if fim_check(incremento,Vetor_Pos,index):
-            mover_fim(peca,Vetor_Pos,index)
+        
+            
+        if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca  
+            if fim_check(incremento,Vetor_Pos,index):
+                mover_fim(peca,Vetor_Pos,index)  
+
+            elif comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
+                comer_peca(posicao,peca,Vetor_Pos,index)
+                
+            elif posicao == 36:
+                posicao_peca(24,peca,Vetor_Pos,index)
+                
+            else:
+                posicao_peca(posicao,peca,Vetor_Pos,index)
+                
         else:
-            if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca
-                if comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
-                    comer_peca(posicao,peca,Vetor_Pos,index)
-                elif posicao == 36:
-                    posicao_peca(24,peca,Vetor_Pos,index)
-                else:
-                    posicao_peca(posicao,peca,Vetor_Pos,index)
-    else:
-        print("nao joga")
+            print("nao joga")
 
 def winning_check(Vetor_pos): #retorna 0 se branco ganhar e 1 se preto ganhar
     venceu_branco = True
@@ -315,7 +322,8 @@ def Game():
     #Globais
     global lancamento
     global Jogador
-    global Vetor_Posicoes_Pecas 
+    global Vetor_Posicoes_Pecas
+    global lancamento_feito 
     #
     pecas_brancas = [0,2,4,6,8]
     pecas_pretas = [1,3,5,7,9]
@@ -372,8 +380,11 @@ def Game():
                                 break
 
                 #clicar para lancar varas/paus 
-                if Lanca_Paus.collidepoint(Posicao_rato):
+                if Lanca_Paus.collidepoint(Posicao_rato) and lancamento_feito == False:
                     lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
+
+                    
+                  
 
            
 
