@@ -54,10 +54,16 @@ Winning_Board= pygame.image.load(os.path.join('Assets','Winning_Board.png'))
 
 #savegame e loadgame
 #salvar jogador, lancamento, lancamento_Passado, Vetor_Posicao_Pecas
-def savegame():
+def savegame(jogador, lancamento, lancamento_Passado, Vetor_Posicao_Pecas):
+    with open("savegame.txt", "w") as arquivo:
+        arquivo.write(f"jogador: {jogador}\n")
+        arquivo.write(f"lancamento: {lancamento}\n")
+        arquivo.write(f"lancamento_Passado: {lancamento_Passado}\n")
+        arquivo.write("Vetor_Posicao_Pecas:\n")
+        for posicao in Vetor_Posicao_Pecas:
+            arquivo.write(f"{posicao}\n")
 
-def loadgame():
-    
+
 
 #funcao de lançamento de sticjs
 def throw_sticks():
