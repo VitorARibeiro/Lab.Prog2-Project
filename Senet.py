@@ -58,7 +58,7 @@ Winning_Board= pygame.image.load(os.path.join('Assets','Winning_Board.png'))
 
 #DEFINICAO DE FUNCOES
 
-#funcao de lançamento de sticks
+#funcao de lançamento de sticjs
 def throw_sticks():
     global lancamento_feito
     jogadas = random.randint(1,5)
