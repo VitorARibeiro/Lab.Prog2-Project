@@ -19,6 +19,8 @@ lancamento = 0
 lancamento_Passado = 0
 Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
 lancamento_feito = False
+settings = [0,0] # 0 - player  1 - bot
+                # branco  preto
 #-----
 
 CLOCK = pygame.time.Clock()
@@ -80,10 +82,8 @@ def new_game(Peca,Vetor_Pos):
         
 #check por posicao absoluta
 def move_check(posicao,Vetor_Pos,index):
-    global lancamento,lancamento_feito
+    global lancamento
     pode_mover = True
-    print(Vetor_Pos[index])
-    print (lancamento)
     if posicao<10 : #nao pode ir para zona superior
         return False
     elif Vetor_Pos[index] == 37 and lancamento != 3:
@@ -113,11 +113,27 @@ def move_check(posicao,Vetor_Pos,index):
                     if posicao == 36 and item == 24: 
                         pode_mover = False
         
-    if pode_mover == True:
-        lancamento_feito = False
 
     return pode_mover
 
+def possivel_jogar(lancamento, Vetor_Pos, Jogador):
+    pecas_brancas = [0,2,4,6,8]
+    pecas_pretas = [1,3,5,7,9]
+
+    Pode_Mover = False 
+
+    if Jogador % 2 == 0: #pecas brancas
+        for position in pecas_brancas:
+            if move_check(Vetor_Pos[position] + lancamento,Vetor_Pos,position) or move_check(Vetor_Pos[position] - lancamento,Vetor_Pos,position):
+                Pode_Mover = True
+    else: #pecas brancas
+        for position in pecas_pretas:
+            if move_check(Vetor_Pos[position] + lancamento,Vetor_Pos,position) or move_check(Vetor_Pos[position] - lancamento,Vetor_Pos,position):
+                Pode_Mover = True
+
+    return Pode_Mover
+
+    
 def comer_check(posicao,Vetor_Pos,index):
     pode_comer = False
     for i in range(10):
@@ -179,27 +195,24 @@ def peca_nao_terminou_jogo(Vetor_Pos,index):
     
 
 def mover_peca_incremento (incremento,peca,Vetor_Pos,index): #Logica principal do jogo
+    global lancamento_feito
     posicao = Vetor_Pos[index] + incremento
+    lancamento_feito = False
+
     if peca_nao_terminou_jogo(Vetor_Pos,index) and incremento!=0: #nao esta no fim
 
-        
+        if fim_check(incremento,Vetor_Pos,index):
+            mover_fim(peca,Vetor_Pos,index)  
+
+        elif comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
+            comer_peca(posicao,peca,Vetor_Pos,index)
             
-        if move_check(posicao,Vetor_Pos,index): #se for possivel mover a peca  
-            if fim_check(incremento,Vetor_Pos,index):
-                mover_fim(peca,Vetor_Pos,index)  
-
-            elif comer_check(posicao,Vetor_Pos,index): #se for preciso comer uma peça
-                comer_peca(posicao,peca,Vetor_Pos,index)
-                
-            elif posicao == 36:
-                posicao_peca(24,peca,Vetor_Pos,index)
-                
-            else:
-                posicao_peca(posicao,peca,Vetor_Pos,index)
-                
+        elif posicao == 36:
+            posicao_peca(24,peca,Vetor_Pos,index)
+            
         else:
-            print("nao joga")
-
+            posicao_peca(posicao,peca,Vetor_Pos,index)
+                
 def winning_check(Vetor_pos): #retorna 0 se branco ganhar e 1 se preto ganhar
     venceu_branco = True
     venceu_preto = True
@@ -256,8 +269,8 @@ def draw_Menu(Botoes):
 
 def draw_Winning_Screen (Sair,index):
     #definir fonte 
-    font_lancamento = pygame.font.Font(None, 70)
-    text_lancamento = font_lancamento.render("Stuart",True,TEXT_COLOR)
+    font_Winner = pygame.font.Font(None, 70)
+    text_Winner = font_Winner.render("Stuart",True,TEXT_COLOR)
 
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Sair_img,Sair)
@@ -268,9 +281,17 @@ def draw_Winning_Screen (Sair,index):
     else: #peca preta
         WIN.blit(Big_peca_preta,(420,210))
 
-    WIN.blit(text_lancamento,(350,380))
+    WIN.blit(text_Winner,(350,380))
 
     pygame.display.update()
+
+def draw_Def_screen(Sair):
+
+    WIN.blit(BackGound_img,(0,0))
+    WIN.blit(Sair_img,Sair)
+
+    pygame.display.update()
+
 
     
 #------------------MENUS E JOGO----------------------
@@ -298,13 +319,13 @@ def Main_Menu():
                     if Botoes[i].collidepoint(Posicao_rato):
                         
                         if i == 0:
-                            Game() #inicia Jogo
+                            Game() #inicia Jogo 
                         elif i == 1:
-                            run = False
+                            run = False #load jogo
                         elif i == 2:
-                            run = False
+                            run = False #ajuda
                         elif i == 3:
-                            run = False
+                            Def_screen() #def
                         elif i == 4:
                             pygame.quit()
         draw_Menu(Botoes)
@@ -324,6 +345,7 @@ def Game():
     global Jogador
     global Vetor_Posicoes_Pecas
     global lancamento_feito 
+    global settings
     #
     pecas_brancas = [0,2,4,6,8]
     pecas_pretas = [1,3,5,7,9]
@@ -347,46 +369,60 @@ def Game():
             Winning_Screen (0)
         elif winning_check(Vetor_Posicoes_Pecas) == 1:
             Winning_Screen (1)
+        #saber se ha jogadas possiveis ou nao, se nao houver avança auto
+
+        if lancamento != 0 and possivel_jogar(lancamento,Vetor_Posicoes_Pecas,Jogador) == False:
+            Jogador += 1 #avança para proximo jogador
+
+        # ---Açoes bots
+        if settings[Jogador%2] == 1: #significa que é o bot a jogar
+
+            if lancamento_feito == False: #Bot lanca dados antes de jogar
+                print ("lanca boot")
+
+            if Jogador % 2 == 0 : #bot branco
+                print("BOTTT BRANCOO") #jogada do bot
+                
+            elif Jogador % 2 == 1:  #Bot preto
+                print("BOT PRETOOO")
+                
 
 
+        #---Acoes click (humanos)
         for event in pygame.event.get(): #Fechar programa no X
             if event.type == pygame.QUIT:
                 pygame.quit()
 
             if  event.type == pygame.MOUSEBUTTONDOWN:
                 #clicar nas pecas
-                
+               
                 if pygame.mouse.get_pressed()[0]: #andar para a frente
-                    if Jogador % 2 == 0: #pecas brancas
+                    if Jogador % 2 == 0 and settings[0] == 0: #pecas brancas e for um player
                         for position in pecas_brancas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
-                                break
-                    else:#pecas pretas
-                          for position in pecas_pretas:
+                                if move_check(lancamento + Vetor_Posicoes_Pecas[position],Vetor_Posicoes_Pecas,position):
+                                    mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
+                                   
+                                elif move_check( Vetor_Posicoes_Pecas[position] - lancamento,Vetor_Posicoes_Pecas,position):
+                                    mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)
+                                    
+
+                    elif Jogador %2 != 0 and settings [1] == 0:#pecas pretas e jogador
+                        for position in pecas_pretas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
-                                break
-                elif pygame.mouse.get_pressed()[2]: #andar para tras
-                    if Jogador % 2 == 0: #pecas brancas
-                        for position in pecas_brancas:
-                            if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)    
-                                break
-                    else:#pecas pretas
-                          for position in pecas_pretas:
-                            if Peca[position].collidepoint(Posicao_rato):
-                                mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)                            
-                                break
+                                if move_check(lancamento + Vetor_Posicoes_Pecas[position],Vetor_Posicoes_Pecas,position):
+                                    mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
+                                    
+                                elif move_check( Vetor_Posicoes_Pecas[position] - lancamento,Vetor_Posicoes_Pecas,position):
+                                    mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)
+                                    
+                
 
                 #clicar para lancar varas/paus 
-                if Lanca_Paus.collidepoint(Posicao_rato) and lancamento_feito == False:
+                if Lanca_Paus.collidepoint(Posicao_rato) and lancamento_feito == False and settings[Jogador%2] == 0: # e se for player
                     lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
+                
 
-                    
-                  
-
-           
 
                 #clicar para sair
                 if Sair.collidepoint(Posicao_rato):
@@ -415,6 +451,22 @@ def Winning_Screen(index):
 
         draw_Winning_Screen(Sair,index)
                 
+def Def_screen():
+    Sair = pygame.Rect(5,5,220,80)
+    
+
+    run = True
+    while run:
+        CLOCK.tick(FPS)
+        Posicao_rato = pygame.mouse.get_pos() #posicao do rato
+        for event in pygame.event.get(): #Fechar programa no X
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if Sair.collidepoint(Posicao_rato):
+                    Main_Menu()
+        draw_Def_screen(Sair)
 
     
         
