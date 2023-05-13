@@ -13,7 +13,7 @@ BORDAX = 100
 BORDAY = 160
 
 
-#variaveis a guardar
+#variaveis a guardar && default values
 Jogador = 0
 lancamento = 0
 lancamento_Passado = 0
@@ -21,6 +21,9 @@ Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
 lancamento_feito = False
 settings = [0,0] # 0 - player  1 - bot
                 # branco  preto
+name_player0_text = "Sem Nome"
+name_player1_text = "Sem Nome"
+
 #-----
 
 CLOCK = pygame.time.Clock()
@@ -269,9 +272,9 @@ def draw_Menu(Botoes):
     pygame.display.update()
 
 def draw_Winning_Screen (Sair,index):
+    global name_player0_text,name_player1_text
     #definir fonte 
     font_Winner = pygame.font.Font(None, 70)
-    text_Winner = font_Winner.render("Stuart",True,TEXT_COLOR)
 
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Sair_img,Sair)
@@ -279,8 +282,10 @@ def draw_Winning_Screen (Sair,index):
     #print peca vencedora
     if index == 0: #peca branca
         WIN.blit(Big_peca_branca,(420,210))
+        text_Winner = font_Winner.render(name_player0_text,True,TEXT_COLOR)
     else: #peca preta
         WIN.blit(Big_peca_preta,(420,210))
+        text_Winner = font_Winner.render(name_player1_text,True,TEXT_COLOR)
 
     WIN.blit(text_Winner,(350,380))
 
@@ -288,12 +293,19 @@ def draw_Winning_Screen (Sair,index):
 
 def draw_Def_screen(Sair,Player_0_0,Player_0_1,Player_1_0,Player_1_1):
 
+    # draw names---
+    name_font = pygame.font.Font(None,30)
+    name_player0 = name_font.render(name_player0_text,True,TEXT_COLOR)
+    name_player1 = name_font.render(name_player1_text,True,TEXT_COLOR)
+
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Sair_img,Sair)
     pygame.draw.rect(WIN,(0,0,0),Player_0_0)
     pygame.draw.rect(WIN,(0,0,0),Player_0_1)
     pygame.draw.rect(WIN,(0,0,0),Player_1_0)
     pygame.draw.rect(WIN,(0,0,0),Player_1_1)
+    WIN.blit(name_player0,(140,350))
+    WIN.blit(name_player1,(570,350))
 
     pygame.display.update()
 
@@ -457,32 +469,70 @@ def Winning_Screen(index):
         draw_Winning_Screen(Sair,index)
                 
 def Def_screen():
+    global name_player1_text,name_player0_text,settings
     Sair = pygame.Rect(5,5,220,80)
-    Player_0_0 = pygame.Rect(200,200,200,80)
-    Player_0_1 = pygame.Rect(200,420,200,80)
-    Player_1_0 = pygame.Rect(600,200,200,80)
-    Player_1_1 = pygame.Rect(600,420,200,80)
+    Player_0_0 = pygame.Rect(133,253,300,120)
+    Player_0_1 = pygame.Rect(133,527,300,120)
+    Player_1_0 = pygame.Rect(567,253,300,120)
+    Player_1_1 = pygame.Rect(567,527,300,120)
+    #box pressed
 
+    player_0_0_status = False
+    player_1_0_status = False
+   
+   
     
-
+ 
     run = True
     while run:
         CLOCK.tick(FPS)
         Posicao_rato = pygame.mouse.get_pos() #posicao do rato
-        for event in pygame.event.get(): #Fechar programa no X
-            if event.type == pygame.QUIT:
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:  #Fechar programa no X
                 pygame.quit()
-            
+
             if event.type == pygame.MOUSEBUTTONDOWN:
+                player_0_0_status = False
+                player_1_0_status = False
+
                 if Sair.collidepoint(Posicao_rato):
                     Main_Menu()
+
+                if Player_0_0.collidepoint(Posicao_rato):
+                    settings[0] = 0
+                    player_0_0_status = True
+    
+                if Player_0_1.collidepoint(Posicao_rato):
+                    settings[0] = 1
+                if Player_1_0.collidepoint(Posicao_rato):
+                    settings[1] = 0
+                    player_1_0_status = True
+                if Player_1_1.collidepoint(Posicao_rato):
+                    settings[1] = 1
+    
+
+               
+            
+            if event.type == pygame.KEYDOWN: #escrever no ecra
+                if player_0_0_status:
+                    if event.key == pygame.K_BACKSPACE:
+                        name_player0_text = name_player0_text[:-1]
+                    else:
+                        name_player0_text += event.unicode
+                elif player_1_0_status:
+                    if event.key == pygame.K_BACKSPACE:
+                        name_player1_text = name_player1_text[:-1]
+                    else:
+                        name_player1_text += event.unicode
+
 
         draw_Def_screen(Sair,Player_0_0,Player_0_1,Player_1_0,Player_1_1)
 
     
         
 #RUN MAIN LOOP
-Main_Menu()
+Def_screen()
 
 
 pygame.quit()
