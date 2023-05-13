@@ -1,4 +1,4 @@
-import pygame,os,random
+import pygame,os,random,time
 
 pygame.init()
 
@@ -11,13 +11,13 @@ TEXT_COLOR = (243, 243, 251)
 FPS = 60
 BORDAX = 100
 BORDAY = 160
-
+BOT_DELAY = 2
 
 #variaveis a guardar && default values
 Jogador = 0
 lancamento = 0
 lancamento_Passado = 0
-Vetor_Posicoes_Pecas = [0,0,0,0,0,0,0,0,0,0]
+Vetor_Posicoes_Pecas = [10,11,12,13,14,15,16,17,18,19]
 lancamento_feito = False
 settings = [0,0] # 0 - player  1 - bot
                 # branco  preto
@@ -58,8 +58,55 @@ mini_peca_branca = pygame.transform.scale_by(Peca_Branca_img,0.7)
 Big_peca_preta = pygame.transform.scale_by(Peca_Preta_img,2)
 Big_peca_branca = pygame.transform.scale_by(Peca_Branca_img,2)
 Winning_Board= pygame.image.load(os.path.join('Assets','Winning_Board.png'))
+Bot_def= pygame.image.load(os.path.join('Assets','Bot_def.png'))
+Humano_def= pygame.image.load(os.path.join('Assets','Humano_def.png'))
+Red_button_def= pygame.image.load(os.path.join('Assets','Red_button.png'))
+Green_button_def= pygame.image.load(os.path.join('Assets','Green_Button.png'))
+
+
 
 #DEFINICAO DE FUNCOES
+#funcao bot
+def bot_branco(Peca,Vetor_Posicoes_Pecas):
+    global Jogador
+    pecas_brancas = [0,2,4,6,8]
+    lista = []
+    #escolher peca aleatoria e ver se é possivel mover
+
+    for items in pecas_brancas:
+        if Vetor_Posicoes_Pecas[items] < 40 and (move_check(lancamento + Vetor_Posicoes_Pecas[items],Vetor_Posicoes_Pecas,items) or move_check(Vetor_Posicoes_Pecas[items] - lancamento,Vetor_Posicoes_Pecas,items)):
+            lista.append(items)
+    if lista: #se tiver alguma jogada possivel, joga
+
+        index = random.choice(lista)
+        if move_check(lancamento + Vetor_Posicoes_Pecas[index],Vetor_Posicoes_Pecas,index):   
+            mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,index)
+        else:
+            mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,index)
+        
+    else:
+        print("nao pode jogar, avanca")
+   
+
+def bot_preto(Peca,Vetor_Posicoes_Pecas):
+    pecas_pretas = [1,3,5,7,9]
+    global Jogador
+    lista = []
+    #escolher peca aleatoria e ver se é possivel mover
+
+    for items in pecas_pretas:
+        if Vetor_Posicoes_Pecas[items] < 40 and (move_check(lancamento + Vetor_Posicoes_Pecas[items],Vetor_Posicoes_Pecas,items) or move_check(Vetor_Posicoes_Pecas[items] - lancamento,Vetor_Posicoes_Pecas,items)):
+            lista.append(items)
+    if lista: #se tiver alguma jogada possivel, joga
+
+        index = random.choice(lista)
+        if move_check(lancamento + Vetor_Posicoes_Pecas[index],Vetor_Posicoes_Pecas,index):
+            mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,index)
+        else:
+            mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,index)
+    else:
+        print("nao pode jogar, avanca")
+   
 
 #funcao de lançamento de sticjs
 
@@ -74,13 +121,20 @@ def next_player():
      global Jogador,lancamento_Passado
      if lancamento_Passado == 2 or lancamento_Passado == 3:#se a jogada anterior foi 2 ou 3 avanca
         Jogador += 1
-
-def new_game(Peca,Vetor_Pos):
+# load e new game
+def new_game():
+    global Jogador,lancamento ,lancamento_Passado,Vetor_Posicoes_Pecas,lancamento_feito
+    Jogador = random.randint(1,2)
+    lancamento = 0
+    lancamento_Passado = 0
+    Vetor_Posicoes_Pecas = [10,11,12,13,14,15,16,17,18,19]
+    lancamento_feito = False
+  
+def Load_board(Peca,Vetor_Pos):
     global Jogador
     for i in range (10): #gerar novo jogo
         Peca.append(pygame.Rect (0,0,80,80)) #gerar pecas no topo do ecra
-        posicao_peca(i+10,Peca,Vetor_Pos,i) #definir automaticamente posicao da peça
-    Jogador = random.randint(0,1)
+        posicao_peca(Vetor_Posicoes_Pecas[i],Peca,Vetor_Pos,i) #definir automaticamente posicao da peça
 
 #check por incremento
         
@@ -94,12 +148,14 @@ def move_check(posicao,Vetor_Pos,index):
         return False
     elif Vetor_Pos[index] == 38 and lancamento != 2:
         return False
+    elif posicao > 39: #fim do tabuleiro
+        return True
 
     else:
         for i in range(10):
             if Vetor_Pos[i] == posicao and index%2 == i%2 and i != index: #--------se tiverem na mesma posicao e mesma cor
                 pode_mover = False
-            elif Vetor_Pos[i] == posicao and i!= index and index%2 != i%2: #-----mesmo posicao e cor diferente
+            if Vetor_Pos[i] == posicao and i!= index and index%2 != i%2: #-----mesmo posicao e cor diferente
                 #checkar vizinhanca--protecao aliada---
                 for item_antes in Vetor_Pos:
                     if item_antes == Vetor_Pos[i]-1: #se encontrar peca com a mesma cor antes nao move
@@ -112,10 +168,13 @@ def move_check(posicao,Vetor_Pos,index):
                 #mesmo com cores diferentes, nestas casas nao podem ser comidas ---casa da beleza e vida---                
                 if Vetor_Pos[i] == 24 or Vetor_Pos[i] == 35:
                     pode_mover=False
-            else: #----------nao depende de cor-----------
-                for item in Vetor_Pos:
-                    if posicao == 36 and item == 24: 
-                        pode_mover = False
+             #----------nao depende de cor-----------
+        
+        for item in Vetor_Pos:
+            if posicao == 36 and item == 24: 
+                pode_mover = False
+           
+                    
         
 
     return pode_mover
@@ -128,11 +187,11 @@ def possivel_jogar(lancamento, Vetor_Pos, Jogador):
 
     if Jogador % 2 == 0: #pecas brancas
         for position in pecas_brancas:
-            if move_check(Vetor_Pos[position] + lancamento,Vetor_Pos,position) or move_check(Vetor_Pos[position] - lancamento,Vetor_Pos,position):
+            if Vetor_Pos[position] < 40 and (move_check(Vetor_Pos[position] + lancamento,Vetor_Pos,position) or move_check(Vetor_Pos[position] - lancamento,Vetor_Pos,position)):
                 Pode_Mover = True
-    else: #pecas brancas
+    else: #pecas pretas
         for position in pecas_pretas:
-            if move_check(Vetor_Pos[position] + lancamento,Vetor_Pos,position) or move_check(Vetor_Pos[position] - lancamento,Vetor_Pos,position):
+            if Vetor_Pos[position] < 40 and (move_check(Vetor_Pos[position] + lancamento,Vetor_Pos,position) or move_check(Vetor_Pos[position] - lancamento,Vetor_Pos,position)):
                 Pode_Mover = True
 
     return Pode_Mover
@@ -280,12 +339,18 @@ def draw_Winning_Screen (Sair,index):
     WIN.blit(Sair_img,Sair)
     WIN.blit(Winning_Board,(250,150))
     #print peca vencedora
-    if index == 0: #peca branca
+    if index == 0 and settings[0] == 0: #pessoa peca branca
         WIN.blit(Big_peca_branca,(420,210))
         text_Winner = font_Winner.render(name_player0_text,True,TEXT_COLOR)
-    else: #peca preta
+    elif index == 1 and settings[1] == 0: #pessoa peca preta
         WIN.blit(Big_peca_preta,(420,210))
         text_Winner = font_Winner.render(name_player1_text,True,TEXT_COLOR)
+    elif index == 0 and settings[0] == 1: #bot peca branca
+        WIN.blit(Big_peca_branca,(420,210))
+        text_Winner = font_Winner.render("Bot_Branco",True,TEXT_COLOR)
+    else: #bot peca preta
+        WIN.blit(Big_peca_preta,(420,210))
+        text_Winner = font_Winner.render("Bot_Preto",True,TEXT_COLOR)
 
     WIN.blit(text_Winner,(350,380))
 
@@ -294,18 +359,29 @@ def draw_Winning_Screen (Sair,index):
 def draw_Def_screen(Sair,Player_0_0,Player_0_1,Player_1_0,Player_1_1):
 
     # draw names---
+    global name_player0_text,name_player1_text,settings
     name_font = pygame.font.Font(None,30)
     name_player0 = name_font.render(name_player0_text,True,TEXT_COLOR)
     name_player1 = name_font.render(name_player1_text,True,TEXT_COLOR)
 
     WIN.blit(BackGound_img,(0,0))
     WIN.blit(Sair_img,Sair)
-    pygame.draw.rect(WIN,(0,0,0),Player_0_0)
-    pygame.draw.rect(WIN,(0,0,0),Player_0_1)
-    pygame.draw.rect(WIN,(0,0,0),Player_1_0)
-    pygame.draw.rect(WIN,(0,0,0),Player_1_1)
-    WIN.blit(name_player0,(140,350))
-    WIN.blit(name_player1,(570,350))
+    WIN.blit(Humano_def,Player_0_0)
+    WIN.blit(Humano_def,Player_1_0)
+    WIN.blit(Bot_def,Player_0_1)
+    WIN.blit(Bot_def,Player_1_1)
+
+    if settings[0] == 0: #player0 humano
+        WIN.blit(Green_button_def,(73,280))
+    elif settings[0] == 1: #player0 bot
+        WIN.blit(Green_button_def,(73,560))
+    if settings[1] == 0: #player0 humano
+        WIN.blit(Green_button_def,(880,280))
+    elif settings[1] == 1: #player0 bot
+        WIN.blit(Green_button_def,(880,560))
+    WIN.blit(name_player0,(250,325))
+    WIN.blit(name_player1,(685,325))
+
 
     pygame.display.update()
 
@@ -336,6 +412,7 @@ def Main_Menu():
                     if Botoes[i].collidepoint(Posicao_rato):
                         
                         if i == 0:
+                            new_game() #altera tabuleiro e random jogador
                             Game() #inicia Jogo 
                         elif i == 1:
                             run = False #load jogo
@@ -367,19 +444,41 @@ def Game():
     pecas_brancas = [0,2,4,6,8]
     pecas_pretas = [1,3,5,7,9]
 
-    #gerar novo jogo
-    new_game(Peca,Vetor_Posicoes_Pecas)
+    #new game 
+    Load_board(Peca,Vetor_Posicoes_Pecas)
+    #primeiro desenho 
+    draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento)
 
     run = True
     while run:
         
         Posicao_rato = pygame.mouse.get_pos() #posicao do rato
         CLOCK.tick(FPS)
-        #jogadas a fazer
-        if lancamento != 0:
-            text_lancamento = font_lancamento.render(str(lancamento),True,TEXT_COLOR)
-        else:
-            text_lancamento = font_lancamento.render(" ",True,TEXT_COLOR)
+
+        # ---Açoes bots
+        if settings[Jogador%2] == 1: #significa que é o bot a jogar
+            
+            if lancamento_feito == False: #Bot lanca dados antes de jogar
+                time.sleep(BOT_DELAY)
+                lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
+                #atualizar lancamentos para bot 
+                if lancamento != 0:
+                    text_lancamento = font_lancamento.render(str(lancamento),True,TEXT_COLOR)
+                else:
+                    text_lancamento = font_lancamento.render(" ",True,TEXT_COLOR)
+                
+                draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento)
+
+                
+            
+                 
+            if Jogador % 2 == 0 : #bot branco
+                time.sleep(BOT_DELAY)
+                bot_branco(Peca,Vetor_Posicoes_Pecas)
+                
+            elif Jogador % 2 == 1:  #Bot preto
+                time.sleep(BOT_DELAY)
+                bot_preto(Peca,Vetor_Posicoes_Pecas)
 
         #condicao de vitoria 0 branca 1 preta
         if winning_check(Vetor_Posicoes_Pecas) == 0:
@@ -388,21 +487,12 @@ def Game():
             Winning_Screen (1)
         #saber se ha jogadas possiveis ou nao, se nao houver avança auto
 
-        if lancamento != 0 and possivel_jogar(lancamento,Vetor_Posicoes_Pecas,Jogador) == False:
+        if lancamento != 0 and not possivel_jogar(lancamento,Vetor_Posicoes_Pecas,Jogador):
             Jogador += 1 #avança para proximo jogador
+            lancamento_feito = False
+            print("avancou")
 
-        # ---Açoes bots
-        if settings[Jogador%2] == 1: #significa que é o bot a jogar
-
-            if lancamento_feito == False: #Bot lanca dados antes de jogar
-                print ("lanca boot")
-
-            if Jogador % 2 == 0 : #bot branco
-                print("BOTTT BRANCOO") #jogada do bot
-                
-            elif Jogador % 2 == 1:  #Bot preto
-                print("BOT PRETOOO")
-                
+        
 
 
         #---Acoes click (humanos)
@@ -417,20 +507,22 @@ def Game():
                     if Jogador % 2 == 0 and settings[0] == 0: #pecas brancas e for um player
                         for position in pecas_brancas:
                             if Peca[position].collidepoint(Posicao_rato):
+                                
                                 if move_check(lancamento + Vetor_Posicoes_Pecas[position],Vetor_Posicoes_Pecas,position):
-                                    mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
-                                   
-                                elif move_check( Vetor_Posicoes_Pecas[position] - lancamento,Vetor_Posicoes_Pecas,position):
+                                    mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)  
+
+                                elif move_check(Vetor_Posicoes_Pecas[position] - lancamento,Vetor_Posicoes_Pecas,position):
                                     mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)
                                     
 
                     elif Jogador %2 != 0 and settings [1] == 0:#pecas pretas e jogador
                         for position in pecas_pretas:
                             if Peca[position].collidepoint(Posicao_rato):
-                                if move_check(lancamento + Vetor_Posicoes_Pecas[position],Vetor_Posicoes_Pecas,position):
+                               
+                                if move_check(lancamento + Vetor_Posicoes_Pecas[position],Vetor_Posicoes_Pecas,position) :
                                     mover_peca_incremento(lancamento,Peca,Vetor_Posicoes_Pecas,position)
                                     
-                                elif move_check( Vetor_Posicoes_Pecas[position] - lancamento,Vetor_Posicoes_Pecas,position):
+                                elif move_check( Vetor_Posicoes_Pecas[position] - lancamento,Vetor_Posicoes_Pecas,position) :
                                     mover_peca_incremento(-lancamento,Peca,Vetor_Posicoes_Pecas,position)
                                     
                 
@@ -446,6 +538,12 @@ def Game():
                     Main_Menu()
 
        
+        #jogadas a fazer
+        if lancamento != 0:
+            text_lancamento = font_lancamento.render(str(lancamento),True,TEXT_COLOR)
+        else:
+            text_lancamento = font_lancamento.render(" ",True,TEXT_COLOR)
+
         draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento)
 
 def Winning_Screen(index):
@@ -505,13 +603,13 @@ def Def_screen():
     
                 if Player_0_1.collidepoint(Posicao_rato):
                     settings[0] = 1
+
                 if Player_1_0.collidepoint(Posicao_rato):
                     settings[1] = 0
                     player_1_0_status = True
+
                 if Player_1_1.collidepoint(Posicao_rato):
                     settings[1] = 1
-    
-
                
             
             if event.type == pygame.KEYDOWN: #escrever no ecra
@@ -532,7 +630,7 @@ def Def_screen():
     
         
 #RUN MAIN LOOP
-Def_screen()
+Main_Menu()
 
 
 pygame.quit()
