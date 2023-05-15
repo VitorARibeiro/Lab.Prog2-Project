@@ -11,7 +11,7 @@ TEXT_COLOR = (243, 243, 251)
 FPS = 60
 BORDAX = 100
 BORDAY = 160
-BOT_DELAY = 2
+BOT_DELAY = 0.1
 
 #variaveis a guardar && default values
 Jogador = 0
