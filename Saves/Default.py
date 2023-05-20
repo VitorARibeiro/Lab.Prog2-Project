@@ -1,0 +1,9 @@
+Jogador = 2
+lancamento = 3
+lancamento_Passado = 1
+Vetor_Posicoes_Pecas = [10, 11, 12, 13, 14, 15, 16, 20, 19, 28]
+lancamento_feito = True
+settings = [0, 0]
+name_player0_text = "Sem Nome"
+name_player1_text = "Sem Nome"
+GAME_SAVE_NAME = "Default"

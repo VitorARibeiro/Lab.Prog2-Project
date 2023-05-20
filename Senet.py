@@ -1,4 +1,6 @@
-import pygame,os,random,time
+import pygame,os,random,time,importlib
+
+  
 
 pygame.init()
 
@@ -13,6 +15,7 @@ BORDAX = 100
 BORDAY = 160
 BOT_DELAY = 0.1
 
+
 #variaveis a guardar && default values
 Jogador = 0
 lancamento = 0
@@ -23,6 +26,7 @@ settings = [0,0] # 0 - player  1 - bot
                 # branco  preto
 name_player0_text = "Sem Nome"
 name_player1_text = "Sem Nome"
+GAME_SAVE_NAME = "Default"
 
 #-----
 
@@ -64,6 +68,38 @@ Red_button_def= pygame.image.load(os.path.join('Assets','Red_button.png'))
 Green_button_def= pygame.image.load(os.path.join('Assets','Green_Button.png'))
 
 
+#Save & Load
+def Save_Game():
+    global GAME_SAVE_NAME
+    global Jogador,lancamento,lancamento_Passado,Vetor_Posicoes_Pecas,lancamento_feito,settings,name_player0_text,name_player1_text,GAME_SAVE_NAME
+    f = open("Saves/%s.py" %GAME_SAVE_NAME,"w")
+    f.write("Jogador = " + str(Jogador) +"\n")
+    f.write ("lancamento = " + str(lancamento) + "\n")
+    f.write("lancamento_Passado = " + str(lancamento_Passado) + "\n")
+    f.write("Vetor_Posicoes_Pecas = " + str(Vetor_Posicoes_Pecas) +"\n")
+    f.write("lancamento_feito = " + str(lancamento_feito) + "\n")
+    f.write("settings = " +str(settings) +"\n")
+    f.write("name_player0_text = \"%s\"" %str(name_player0_text) +"\n")
+    f.write("name_player1_text = \"%s\"" %str(name_player1_text) + "\n")
+    f.write("GAME_SAVE_NAME = \"%s\"" %str(GAME_SAVE_NAME) + "\n")
+
+def Load_Game():
+    global GAME_SAVE_NAME
+    global Jogador,lancamento,lancamento_Passado,Vetor_Posicoes_Pecas,lancamento_feito,settings,name_player0_text,name_player1_text,GAME_SAVE_NAME
+
+    modulo = importlib.import_module("Saves.%s"%GAME_SAVE_NAME)
+
+    Jogador = modulo.Jogador
+    lancamento = modulo.lancamento
+    lancamento_Passado = modulo.lancamento_Passado
+    Vetor_Posicoes_Pecas = modulo.Vetor_Posicoes_Pecas
+    lancamento_feito = modulo.lancamento_feito
+    settings = modulo.settings # 0 - player  1 - bot
+                # branco  preto
+    name_player0_text = modulo.name_player0_text
+    name_player1_text = modulo.name_player1_text
+    GAME_SAVE_NAME = modulo.GAME_SAVE_NAME
+    
 
 #DEFINICAO DE FUNCOES
 #funcao bot
@@ -134,7 +170,7 @@ def Load_board(Peca,Vetor_Pos):
     global Jogador
     for i in range (10): #gerar novo jogo
         Peca.append(pygame.Rect (0,0,80,80)) #gerar pecas no topo do ecra
-        posicao_peca(Vetor_Posicoes_Pecas[i],Peca,Vetor_Pos,i) #definir automaticamente posicao da peça
+        posicao_set(Vetor_Posicoes_Pecas[i],Peca,Vetor_Pos,i) #definir automaticamente posicao da peça
 
 #check por incremento
         
@@ -214,7 +250,11 @@ def comer_peca(posicao_final,peca,Vetor_Pos,index):
     posicao_peca(pos_inicio,peca,Vetor_Pos,final) #move peca final para inicio
   
    
-  
+def posicao_set(posicao,peca,Vetor_Pos,index):
+    peca[index].x = (SEQUENCIA[posicao] % 10 ) * 80 + BORDAX
+    peca[index].y = (SEQUENCIA[posicao] // 10 ) * 80 + BORDAY - 80
+    Vetor_Pos[index] = posicao
+
 #funcao de posicao no tabuleiro em x e y            
 def posicao_peca(posicao,peca,Vetor_Pos,index): #digo em que posicao quero a peça
     global lancamento,lancamento_Passado
@@ -224,8 +264,7 @@ def posicao_peca(posicao,peca,Vetor_Pos,index): #digo em que posicao quero a pe�
     lancamento_Passado = lancamento
     next_player()
     lancamento = 0 
-
-    
+   
 def fim_check(incremento,Vetor_Pos,index): #checka se a peca vai sair do tabuleiro
     if Vetor_Pos[index] + incremento > 39:
         return True
@@ -415,7 +454,8 @@ def Main_Menu():
                             new_game() #altera tabuleiro e random jogador
                             Game() #inicia Jogo 
                         elif i == 1:
-                            run = False #load jogo
+                            Load_Game() #load jogo
+                            Game()
                         elif i == 2:
                             run = False #ajuda
                         elif i == 3:
@@ -446,6 +486,7 @@ def Game():
 
     #new game 
     Load_board(Peca,Vetor_Posicoes_Pecas)
+    
     #primeiro desenho 
     draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento)
 
@@ -468,9 +509,6 @@ def Game():
                     text_lancamento = font_lancamento.render(" ",True,TEXT_COLOR)
                 
                 draw_Game(Board,Peca,Sair,Lanca_Paus,text_lancamento)
-
-                
-            
                  
             if Jogador % 2 == 0 : #bot branco
                 time.sleep(BOT_DELAY)
@@ -490,7 +528,7 @@ def Game():
         if lancamento != 0 and not possivel_jogar(lancamento,Vetor_Posicoes_Pecas,Jogador):
             Jogador += 1 #avança para proximo jogador
             lancamento_feito = False
-            print("avancou")
+            
 
         
 
@@ -530,14 +568,21 @@ def Game():
                 #clicar para lancar varas/paus 
                 if Lanca_Paus.collidepoint(Posicao_rato) and lancamento_feito == False and settings[Jogador%2] == 0: # e se for player
                     lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
-                
-
 
                 #clicar para sair
                 if Sair.collidepoint(Posicao_rato):
+                    Save_Game()
                     Main_Menu()
+                    
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_l:
+                    if lancamento_feito == False and settings[Jogador%2] == 0: # e se for player
+                        lancamento = throw_sticks() #lanca paus e caso seja necessario avancar, avanca
 
-       
+                
+
+
+
         #jogadas a fazer
         if lancamento != 0:
             text_lancamento = font_lancamento.render(str(lancamento),True,TEXT_COLOR)
