@@ -13,7 +13,7 @@ TEXT_COLOR = (243, 243, 251)
 FPS = 60
 BORDAX = 100
 BORDAY = 160
-BOT_DELAY = 0.1
+BOT_DELAY = 0.01
 
 
 #variaveis a guardar && default values
@@ -26,7 +26,7 @@ settings = [0,0] # 0 - player  1 - bot
                 # branco  preto
 name_player0_text = "Sem Nome"
 name_player1_text = "Sem Nome"
-GAME_SAVE_NAME = "Default"
+
 
 #-----
 
@@ -67,11 +67,23 @@ Humano_def= pygame.image.load(os.path.join('Assets','Humano_def.png'))
 Red_button_def= pygame.image.load(os.path.join('Assets','Red_button.png'))
 Green_button_def= pygame.image.load(os.path.join('Assets','Green_Button.png'))
 
-
+#print ajuda 
+def print_Ajuda():
+    print("------------Ajuda---------\n \
+->O jogador deve lançar as varas e escolher uma peça para jogar \n \
+caso nao seja possivel mover para a frente a peça move-se para tras \n\n \
+->Caso va para a casa de um enimigo, trocam de posicoes \n\n \
+-> Apenas passa a vez quando e lancado o numero 3 ou 4 \n\n \
+-> Nao é possivel trocar de posicao na casa da segunda vida e na casa da beleza \n\n \
+-> Apenas é possivel sair da casa dos 3 e 2 juizes lancando respetivamente 3 e 2 \n\n \
+-> Ganha o jogador que conseguir com que todas as suas peças atinjam o fim do tabuleiro primeiro")
+    
 #Save & Load
 def Save_Game():
-    global GAME_SAVE_NAME
-    global Jogador,lancamento,lancamento_Passado,Vetor_Posicoes_Pecas,lancamento_feito,settings,name_player0_text,name_player1_text,GAME_SAVE_NAME
+     
+    global Jogador,lancamento,lancamento_Passado,Vetor_Posicoes_Pecas,lancamento_feito,settings,name_player0_text,name_player1_text
+    GAME_SAVE_NAME = input("Indique o nome do ficheiro onde sera guardado o jogo?")
+    
     f = open("Saves/%s.py" %GAME_SAVE_NAME,"w")
     f.write("Jogador = " + str(Jogador) +"\n")
     f.write ("lancamento = " + str(lancamento) + "\n")
@@ -81,24 +93,35 @@ def Save_Game():
     f.write("settings = " +str(settings) +"\n")
     f.write("name_player0_text = \"%s\"" %str(name_player0_text) +"\n")
     f.write("name_player1_text = \"%s\"" %str(name_player1_text) + "\n")
-    f.write("GAME_SAVE_NAME = \"%s\"" %str(GAME_SAVE_NAME) + "\n")
+   
 
 def Load_Game():
-    global GAME_SAVE_NAME
-    global Jogador,lancamento,lancamento_Passado,Vetor_Posicoes_Pecas,lancamento_feito,settings,name_player0_text,name_player1_text,GAME_SAVE_NAME
+    
+    global Jogador,lancamento,lancamento_Passado,Vetor_Posicoes_Pecas,lancamento_feito,settings,name_player0_text,name_player1_text
+    
+    nome_Ficheiro = input("indique o nome do ficheiro para ler ")
 
-    modulo = importlib.import_module("Saves.%s"%GAME_SAVE_NAME)
+    spam_spec = importlib.util.find_spec("Saves.%s"%nome_Ficheiro)
+    found = spam_spec is not None
 
-    Jogador = modulo.Jogador
-    lancamento = modulo.lancamento
-    lancamento_Passado = modulo.lancamento_Passado
-    Vetor_Posicoes_Pecas = modulo.Vetor_Posicoes_Pecas
-    lancamento_feito = modulo.lancamento_feito
-    settings = modulo.settings # 0 - player  1 - bot
-                # branco  preto
-    name_player0_text = modulo.name_player0_text
-    name_player1_text = modulo.name_player1_text
-    GAME_SAVE_NAME = modulo.GAME_SAVE_NAME
+    if found:
+
+   
+        modulo = importlib.import_module("Saves.%s"%nome_Ficheiro)
+
+        Jogador = modulo.Jogador
+        lancamento = modulo.lancamento
+        lancamento_Passado = modulo.lancamento_Passado
+        Vetor_Posicoes_Pecas = modulo.Vetor_Posicoes_Pecas
+        lancamento_feito = modulo.lancamento_feito
+        settings = modulo.settings # 0 - player  1 - bot
+                        # branco  preto
+        name_player0_text = modulo.name_player0_text
+        name_player1_text = modulo.name_player1_text
+        Game()
+    else:
+        print("nao encontrado")
+    
     
 
 #DEFINICAO DE FUNCOES
@@ -455,9 +478,8 @@ def Main_Menu():
                             Game() #inicia Jogo 
                         elif i == 1:
                             Load_Game() #load jogo
-                            Game()
                         elif i == 2:
-                            run = False #ajuda
+                            print_Ajuda()
                         elif i == 3:
                             Def_screen() #def
                         elif i == 4:
