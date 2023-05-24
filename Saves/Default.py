@@ -1,9 +1,0 @@
-Jogador = 1
-lancamento = 1
-lancamento_Passado = 0
-Vetor_Posicoes_Pecas = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-lancamento_feito = True
-settings = [0, 0]
-name_player0_text = "Vitor Ribeiro"
-name_player1_text = "John"
-GAME_SAVE_NAME = "Default"
